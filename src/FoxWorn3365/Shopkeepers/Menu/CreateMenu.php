@@ -4,7 +4,7 @@ namespace FoxWorn3365\Shopkeepers\Menu;
 
 use muqsit\invmenu\InvMenu;
 use pocketmine\item\VanillaItems;
-use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
 use muqsit\invmenu\InvMenuTransactionResult;
 use muqsit\invmenu\InvMenuTransaction;
 
@@ -19,7 +19,7 @@ class CreateMenu {
 
     public function create() : InvMenu {
         $this->menu->setName("Create your shop!");
-        $item = Item::get(160, 13);
+        $item = ItemFactory::fromString("160:13");
         $item->setName("§rCreate the Shop");
         $this->menu->getInventory()->setItem(31, $item);
 

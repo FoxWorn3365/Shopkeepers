@@ -5,6 +5,7 @@ namespace FoxWorn3365\Shopkeepers\Menu;
 use muqsit\invmenu\InvMenu;
 use pocketmine\item\VanillaItems;
 use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
 use muqsit\invmenu\InvMenuTransactionResult;
 use muqsit\invmenu\InvMenuTransaction;
 
@@ -27,7 +28,7 @@ class EditItemMenu {
         $item = $object->id;
         $index = $this->slot-9;
         if ($item === null) {
-            $item = Item::get(160, 4);
+            $item = ItemFactory::fromString("160:4");
             $item->setCustomName('Change the block at my right!');
             $item->setCount(1);
             $slot = 12;
@@ -36,29 +37,29 @@ class EditItemMenu {
             $slot = 13;
         }
         $this->menu->setTitle("Edit menu {$this->config->title}");
-        $saveitem = Item::get(160, 13);
+        $saveitem = ItemFactory::fromString("160:13");
         $saveitem->setCustomName("§rSave the item");
         $this->menu->getInventory()->setItem(31, $saveitem);
         $this->menu->getInventory()->setItem($slot, $item);
 
         // Money part
-        $money = Item::get(160, 8);
+        $money = ItemFactory::fromString("160:8");
         $money->setName("§rPrice: {$object->price}$");
         $this->menu->getInventory()->setItem(9, $money);
 
         // Price increasator and decreasator
-        $moneyincrease = Item::get(95, 13);
+        $moneyincrease = ItemFactory::fromString("95:13");
         $moneyincrease->setCustomName("§r+1$");
         $this->menu->getInventory()->setItem(1, $moneyincrease);
-        $moneydecrease = Item::get(95, 14);
+        $moneydecrease = ItemFactory::fromString("95:14");
         $moneydecrease->setCustomName("§r-1$");
         $this->menu->getInventory()->setItem(19, $moneydecrease);
 
         // Qta increasator and decreasator
-        $qtaincrease = Item::get(95, 13);
+        $qtaincrease = ItemFactory::fromString("95:13");
         $qtaincrease->setCustomName("§r+1");
         $this->menu->getInventory()->setItem(4, $qtaincrease);
-        $qtadecrease = Item::get(95, 14);
+        $qtadecrease = ItemFactory::fromString("95:14");
         $qtadecrease->setCustomName("§r-1");
         $this->menu->getInventory()->setItem(22, $qatadecrease);
 
