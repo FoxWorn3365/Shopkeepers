@@ -21,7 +21,7 @@ class CreateMenu {
         $this->menu->setName("Create your shop!");
         $item = VanillaItems::GREEN_STAINED_GLASS_PANE();
         $item->setName("§rCreate the Shop");
-        $this->menu->setItem(31, $item);
+        $this->menu->getInventory()->setItem(31, $item);
 
         $dir = $this->dir;
         $this->menu->setListener(function(InvMenuTransaction $transaction) use ($dir) : InvMenuTransactionResult {
@@ -30,6 +30,7 @@ class CreateMenu {
                 $mn = new EditMenu((object)['items' => ['id' => 'iron_pickaxe', 'count' => 2, 'price' => 30]]);
                 $mn->create()->send($transaction->getPlayer());
             }
+            return $transaction->discard();
         });
         return $this->menu;
     }
