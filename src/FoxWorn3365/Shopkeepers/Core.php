@@ -24,7 +24,7 @@ class Core extends PluginBase implements Listener {
 		if(!InvMenuHandler::isRegistered()){
 			InvMenuHandler::register($this);
 		}
-        
+
         // Create the config folder if it does not exists
         @mkdir($this->getDataFolder());
 
@@ -42,5 +42,7 @@ class Core extends PluginBase implements Listener {
         $item = VanillaItems::IRON_PICKAXE();
         $item->setCustomName('Magic epic test uwu');
         $menu->getInventory()->setItem(6, $item);
+        $menu->setName("TEST");
+        $menu->send($event->getPlayer());
     }
 }
