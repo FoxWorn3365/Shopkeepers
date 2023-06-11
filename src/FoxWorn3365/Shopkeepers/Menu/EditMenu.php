@@ -21,7 +21,7 @@ class EditMenu {
 
     public function create() : InvMenu {
         $this->menu->setTitle("Edit menu {$this->config->title}");
-        $saveitem = ItemFactory::fromString("160:13");
+        $saveitem = ItemFactory::getInstance()->get(160, 13);
         $saveitem->setCustomName("§rSave the Store");
         $this->menu->getInventory()->setItem(31, $saveitem);
         $slotcount = 9;
@@ -30,7 +30,7 @@ class EditMenu {
             $itemconstructor = ItemFactory::fromString("{$item->id}:{$item->meta}");
             $itemconstructor->setCount($item->count);
             $itemconstructor->setCustomName($itemconstructor->getVanillaName() . "\nPrice: {$item->price}$");
-            $itemmenu = ItemFactory::fromString("35:12");
+            $itemmenu = ItemFactory::getInstance()->get(35, 12);
             $itemmenu->setCustomName("§rEdit this item");
             $this->menu->getInventory()->setItem($slotcount, $itemconstructor);
             $this->menu->getInventory()->setItem($slotcount+9, $itemmenu);

@@ -19,7 +19,7 @@ class CreateMenu {
 
     public function create() : InvMenu {
         $this->menu->setName("Create your shop!");
-        $item = ItemFactory::fromString("160:13");
+        $item = ItemFactory::getInstance()->get(160, 13);
         $item->setName("§rCreate the Shop");
         $this->menu->getInventory()->setItem(31, $item);
 
