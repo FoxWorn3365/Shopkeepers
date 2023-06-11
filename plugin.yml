@@ -1,0 +1,5 @@
+name: Shopkeepers
+version: 0.1
+api: 5.0.0
+main: FoxWorn3365\Shopkeepers\Core
+author: FoxWorn3365

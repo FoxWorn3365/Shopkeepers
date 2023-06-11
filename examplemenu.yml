@@ -1,0 +1,13 @@
+# Default Config
+
+menus:
+  first-menu:
+    name: My incredible menu!
+    size: 32
+    items: 
+      - item: iron_axe
+        slot: 10
+        name: Ascia del Cazzo
+        action:
+          - type: command
+            do: /ban
