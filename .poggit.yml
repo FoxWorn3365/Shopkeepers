@@ -1,0 +1,9 @@
+branches:
+- main
+projects:
+  Shopkeepers:
+    path: ""
+    libs:
+      - src: muqsit/InvMenu/InvMenu
+        version: ^4.6.1
+        branch: pm5
