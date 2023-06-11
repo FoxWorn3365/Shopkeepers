@@ -3,3 +3,29 @@ version: 0.1
 api: 5.0.0
 main: FoxWorn3365\Shopkeepers\Core
 author: FoxWorn3365
+commands:
+  shopkeepers-spawn:
+    # Description that will be shown in help command
+    description: Spawn a new Shoopkepers shop
+    # Shown to the user if they type the command in incorrectly
+    usage: "/shopkeepers-spawn <shop-name>"
+    aliases:
+      - sk-spawn
+      - sk-s
+    # Permission required to run the command
+    permission: shopkeepers.spawn.shop
+    # Shown to the user if they don't have permission to run the command
+    permission-message: "You do not have permission to use this command!"
+  shopkeepers-admin-spawn:
+    # Description that will be shown in help command
+    description: Spawn a new Shoopkepers admin shop
+    # Shown to the user if they type the command in incorrectly
+    usage: "/shopkeepers-admin-spawn <shop-name>"
+    aliases:
+      - sk-admin-spawn
+      - sk-a-spawn
+      - sk-a-s
+    # Permission required to run the command
+    permission: shopkeepers.spawn.admin
+    # Shown to the user if they don't have permission to run the command
+    permission-message: "You do not have permission to use this command!"

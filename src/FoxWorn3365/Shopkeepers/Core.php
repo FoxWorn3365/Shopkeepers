@@ -13,6 +13,8 @@ use muqsit\invmenu\InvMenuHandler;
 use muqsit\invmenu\InvMenu;
 use pocketmine\Server;
 
+use FoxWorn3365\Shopkeepers\Menu\CreateMenu;
+
 class Core extends PluginBase implements Listener {
     protected object $menu;
 
@@ -38,11 +40,7 @@ class Core extends PluginBase implements Listener {
     }
 
     public function onPlayerEntityInteract(Interaction $event) : void {
-        $menu = InvMenu::create(InvMenu::TYPE_CHEST);
-        $item = VanillaItems::IRON_PICKAXE();
-        $item->setCustomName('Magic epic test uwu');
-        $menu->getInventory()->setItem(6, $item);
-        $menu->setName("TEST");
-        $menu->send($event->getPlayer());
+        $menu = new CreateMenu($this->getDataFolder());
+        $menu->create()->send($event->getPlayer());
     }
 }
