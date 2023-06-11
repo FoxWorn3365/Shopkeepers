@@ -5,12 +5,16 @@ namespace FoxWorn3365\Shopkeepers\Menu;
 use muqsit\invmenu\InvMenu;
 use pocketmine\item\VanillaItems;
 
+use muqsit\invmenu\InvMenuTransactionResult;
+use muqsit\invmenu\InvMenuTransaction;
+
 class CreateMenu {
     protected InvMenu $menu;
+    protected $dir;
 
     function __construct(string $dir) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
-        $this->dir = $dir;
+        $this->dir = $dir . 'tts.json';
     }
 
     public function create() : InvMenu {

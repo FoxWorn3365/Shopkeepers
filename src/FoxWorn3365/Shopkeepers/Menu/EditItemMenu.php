@@ -3,10 +3,12 @@
 namespace FoxWorn3365\Shopkeepers\Menu;
 
 use muqsit\invmenu\InvMenu;
-use muqsit\invmenu\InvMenuTransactionResult;
 use pocketmine\item\VanillaItems;
 
-class EditMenu {
+use muqsit\invmenu\InvMenuTransactionResult;
+use muqsit\invmenu\InvMenuTransaction;
+
+class EditItemMenu {
     protected InvMenu $menu;
     protected object $config;
     public string|int $id;

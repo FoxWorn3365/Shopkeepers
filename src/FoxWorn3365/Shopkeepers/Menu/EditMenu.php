@@ -5,6 +5,7 @@ namespace FoxWorn3365\Shopkeepers\Menu;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\InvMenuTransactionResult;
 use pocketmine\item\VanillaItems;
+use muqsit\invmenu\InvMenuTransaction;
 
 class EditMenu {
     protected InvMenu $menu;
@@ -42,7 +43,7 @@ class EditMenu {
             $slot = $transaction->getAction()->getSlot();
             if (str_replace(' ', '_', strtolower($item->getVanillaName())) !== 'green_stained_glass_pane') {
                 // Let's edit the item
-                $menu = new EditItemManager($config, str_replace(' ', '_', strtoupper($item->getVanillaName())), $slot, $dir);
+                $menu = new EditItemMenu($config, str_replace(' ', '_', strtoupper($item->getVanillaName())), $slot, $dir);
                 $menu = $menu->edit();
                 $menu->send($transaction->getPlayer());
             }
