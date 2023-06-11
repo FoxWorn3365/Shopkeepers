@@ -13,9 +13,9 @@ commands:
       - sk-spawn
       - sk-s
     # Permission required to run the command
-    permission: shopkeepers.spawn.shop
+    #permission: shopkeepers.spawn.shop
     # Shown to the user if they don't have permission to run the command
-    permission-message: "You do not have permission to use this command!"
+    #permission-message: "You do not have permission to use this command!"
   shopkeepers-admin-spawn:
     # Description that will be shown in help command
     description: Spawn a new Shoopkepers admin shop
@@ -26,6 +26,6 @@ commands:
       - sk-a-spawn
       - sk-a-s
     # Permission required to run the command
-    permission: shopkeepers.spawn.admin
+    #permission: shopkeepers.spawn.admin
     # Shown to the user if they don't have permission to run the command
-    permission-message: "You do not have permission to use this command!"
+    #permission-message: "You do not have permission to use this command!"
