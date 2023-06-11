@@ -11,6 +11,7 @@ use pocketmine\player\Player;
 use pocketmine\item\VanillaItems;
 use muqsit\invmenu\InvMenuHandler;
 use muqsit\invmenu\InvMenu;
+use pocketmine\item\Item;
 use pocketmine\Server;
 
 use FoxWorn3365\Shopkeepers\Menu\CreateMenu;

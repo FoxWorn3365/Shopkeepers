@@ -5,6 +5,7 @@ namespace FoxWorn3365\Shopkeepers\Menu;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\InvMenuTransactionResult;
 use pocketmine\item\VanillaItems;
+use pocketmine\item\Item;
 use muqsit\invmenu\InvMenuTransaction;
 
 class EditMenu {
@@ -19,16 +20,16 @@ class EditMenu {
 
     public function create() : InvMenu {
         $this->menu->setTitle("Edit menu {$this->config->title}");
-        $saveitem = VanillaItems::GREEN_STAINED_GLASS_PANE();
+        $saveitem = Item::get(160, 13);
         $saveitem->setCustomName("§rSave the Store");
         $this->menu->getInventory()->setItem(31, $saveitem);
         $slotcount = 9;
         for ($a = 0; $a < 8; $a++) {
-            $item = $this->config->items[$a] ?? (object)['id' => 'BLACK_STAINED_GLASS_PANE', 'price' => 'ND', 'count' => 1];
-            $itemconstructor = VanillaItems::{$item->id}();
+            $item = $this->config->items[$a] ?? (object)['id' => 160, 'meta' => 8, 'price' => 'ND', 'count' => 1];
+            $itemconstructor = Item::get($item->id, $item->meta);
             $itemconstructor->setCount($item->count);
             $itemconstructor->setCustomName($itemconstructor->getVanillaName() . "\nPrice: {$item->price}$");
-            $itemmenu = VanillaItems::BROWN_WOOL();
+            $itemmenu = Item::get(35, 12);
             $itemmenu->setCustomName("§rEdit this item");
             $this->menu->getInventory()->setItem($slotcount, $itemconstructor);
             $this->menu->getInventory()->setItem($slotcount+9, $itemmenu);
