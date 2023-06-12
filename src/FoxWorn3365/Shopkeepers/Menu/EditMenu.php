@@ -8,6 +8,7 @@ use pocketmine\item\VanillaItems;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use muqsit\invmenu\InvMenuTransaction;
+use pocketmine\nbt\tag\StringTag;
 
 use FoxWorn3365\Shopkeepers\Utils;
 use FoxWorn3365\Shopkeepers\ConfigManager;
@@ -20,6 +21,7 @@ class EditMenu {
     function __construct(ConfigManager $cm, string $name) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
         $this->cm = $cm;
+        var_dump($cm->get());
         $this->config = $cm->get()->{$name};
         $cm->setSingleKey($name);
     }

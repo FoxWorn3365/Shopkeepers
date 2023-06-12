@@ -46,8 +46,11 @@ class Core extends PluginBase implements Listener {
     }
 
     public function onPlayerEntityInteract(Interaction $event) : void {
-        $menu = new CreateMenu($this->getDataFolder());
-        $menu->create()->send($event->getPlayer());
+        //$menu = new CreateMenu($this->getDataFolder());
+        //$menu->create()->send($event->getPlayer());
+        $entity = $event->getEntity();
+        $event->getPlayer()->sendMessage('Manedtag:' . $entity->namedtag['shopAuthor']);
+        $event->getPlayer()->sendMessage('Idds:' . $entity->namedtag['shopId']);
     }
 
     public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool{
@@ -108,6 +111,8 @@ class Core extends PluginBase implements Listener {
             // Let's summon a villager with these data
             $pos = $sender->getLocation();
             $villager = new Villager($pos);
+            $villager->namedtag->shopAuthor = new StringTag("shopAuthor", $sender->getName());
+            $villager->namedtag->shopId = new StringTag("shopId", $name);
             $villager->spawnToAll();
             return true;
         }
