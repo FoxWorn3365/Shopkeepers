@@ -22,14 +22,14 @@ class CreateMenu {
     public function create() : InvMenu {
         $this->menu->setName("Create your shop!");
         $item = Utils::getIntItem(160, 13);
-        $item->setName("§rCreate the Shop");
+        $item->setCustomName("§rCreate the Shop");
         $this->menu->getInventory()->setItem(31, $item);
 
         $dir = $this->dir;
-        $this->menu->setListener(function(InvMenuTransaction $transaction) use ($dir) : InvMenuTransactionResult {
+        $this->menu->setListener(function($transaction) use ($dir) {
             $item = $transaction->getItemClicked();
             if ($item->getName() == "§rCreate the Shop") {
-                $mn = new EditMenu((object)['items' => ['id' => 257, 'meta' => 0, 'count' => 2, 'price' => 30]]);
+                $mn = new EditMenu((object)['items' => ['id' => 257, 'meta' => 0, 'count' => 2, 'price' => 30]], $dir);
                 $mn->create()->send($transaction->getPlayer());
             }
             return $transaction->discard();

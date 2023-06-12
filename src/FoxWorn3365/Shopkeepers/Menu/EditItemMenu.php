@@ -68,7 +68,7 @@ class EditItemMenu {
         $dir = $this->dir;
         $config = $this->config;
 
-        $this->menu->setListener(function(InvMenuTransaction $transaction) use (&$object, $dir, $config, $index) : InvMenuTransactionResult {
+        $this->menu->setListener(function($transaction) use (&$object, $dir, $config, $index) {
             $item = $transaction->getItemClicked();
             if ($item->getName() == "§r+1") {
                 $object->count++;

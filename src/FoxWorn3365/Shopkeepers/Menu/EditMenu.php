@@ -14,11 +14,12 @@ use FoxWorn3365\Shopkeepers\Utils;
 class EditMenu {
     protected InvMenu $menu;
     protected object $config;
+    protected string $dir;
 
-    function __construct(object $config) {
+    function __construct(object $config, string $dir) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
         $this->config = $config;
-
+        $this->dir = $dir;
     }
 
     public function create() : InvMenu {
@@ -42,7 +43,7 @@ class EditMenu {
         $config = $this->config;
         $dir = $this->dir;
 
-        $this->menu->setListener(function(InvMenuTransaction $transaction) : InvMenuTransactionResult {
+        $this->menu->setListener(function($transaction) {
             $item = $transaction->getItemClicked();
             $slot = $transaction->getAction()->getSlot();
             if (str_replace(' ', '_', strtolower($item->getVanillaName())) !== 'green_stained_glass_pane') {
