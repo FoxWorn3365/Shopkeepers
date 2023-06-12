@@ -114,7 +114,7 @@ class EditItemMenu {
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
                     $item = $inventory->getItem($reservedslot);
                     $item->setCount($object->count);
-                    $inventory->setItem($reservedslot, $sellitem);
+                    $inventory->setItem($reservedslot, $item);
                     break;
                 }
             }
