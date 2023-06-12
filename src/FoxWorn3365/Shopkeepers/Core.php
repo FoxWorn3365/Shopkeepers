@@ -17,6 +17,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
 use FoxWorn3365\Shopkeepers\Menu\CreateMenu;
+use FoxWorn3365\Shopkeepers\Menu\EditMenu;
 
 class Core extends PluginBase implements Listener {
     protected object $menu;
@@ -48,7 +49,48 @@ class Core extends PluginBase implements Listener {
     }
 
     public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool{
+        if (!($sender instanceof Player)) {
+            $sender->sendMessage("This command can be only executed by in-game players!");
+            return false;
+        }
+        $shop = new ConfigManager($sender, $this->getDataFolder());
+        if ($args[0] == "list") {
+            if ($shop->is()) {
+                $list = "";
+                foreach ($shop->get() as $item) {
+                    $list .= "\nMenu: {$item->title}";
+                }
+                $sender->sendMessage("Your shops: {$list}");
+                return true;
+            } else {
+                $sender->sendMessage("You don't have any shop(s) here!");
+            }
+        } elseif ($arg[0] == "create") {
+            $name = $arg[1] ?? $this->generateRandomString(7);
+            // Create the config 
+            $newshop = new \stdClass;
+            $newshop->title = $name;
+            $newshop->owner = $sender->getName();
+            $newshop->admin = false;
+            $newshop->items = [];
+            $shop->set($name, $newshop);
+            $menu = new EditMenu($shop, $name);
+            $menu->send($sender);
+            return true;
+        }
         var_dump($args);
         return true;
+    }
+
+    // https://stackoverflow.com/questions/4356289/php-random-string-generator
+    // I'm only lazy
+    protected function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 }

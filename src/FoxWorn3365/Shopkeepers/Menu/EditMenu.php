@@ -10,16 +10,18 @@ use pocketmine\item\ItemFactory;
 use muqsit\invmenu\InvMenuTransaction;
 
 use FoxWorn3365\Shopkeepers\Utils;
+use FoxWorn3365\Shopkeepers\ConfigManager;
 
 class EditMenu {
     protected InvMenu $menu;
     protected object $config;
-    protected string $dir;
+    protected ConfigManager $cm;
 
-    function __construct(object $config, string $dir) {
+    function __construct(ConfigManager $cm, string $name) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
-        $this->config = $config;
-        $this->dir = $dir;
+        $this->cm = $cm;
+        $this->config = $cm->get()->{$name};
+        $cm->setSingleKey($name);
     }
 
     public function create() : InvMenu {
@@ -51,16 +53,14 @@ class EditMenu {
             $this->menu->getInventory()->setItem($slotcount+9, $itemmenu);
             $slotcount++;
         }
+        $cm = $this->cm;
 
-        $config = $this->config;
-        $dir = $this->dir;
-
-        $this->menu->setListener(function($transaction) use ($config, $dir) {
+        $this->menu->setListener(function($transaction) use ($cm) {
             $item = $transaction->getItemClicked();
             $slot = $transaction->getAction()->getSlot();
             if (str_replace(' ', '_', strtolower($item->getVanillaName())) !== 'green_stained_glass_pane') {
                 // Let's edit the item
-                $menu = new EditItemMenu($config, str_replace(' ', '_', strtoupper($item->getVanillaName())), $slot, $dir);
+                $menu = new EditItemMenu($cm, str_replace(' ', '_', strtoupper($item->getVanillaName())), $slot);
                 $menu = $menu->edit();
                 $menu->send($transaction->getPlayer());
             }

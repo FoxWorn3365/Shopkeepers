@@ -10,20 +10,21 @@ use muqsit\invmenu\InvMenuTransactionResult;
 use muqsit\invmenu\InvMenuTransaction;
 
 use FoxWorn3365\Shopkeepers\Utils;
+use FoxWorn3365\Shopkeepers\ConfigManager;
 
 class EditItemMenu {
     protected InvMenu $menu;
+    protected ConfigManager $cm;
     protected object $config;
     public string|int $id;
     public int $slot;
-    public string $dir;
 
-    function __construct(object $config, string $id, int $slot, string $dir) {
+    function __construct(ConfigManager $cm, string $id, int $slot) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
-        $this->config = $config;
+        $this->config = $cm->get($cm->getSingleKey());
         $this->id = $id;
         $this->slot = $slot;
-        $this->dir = $dir;
+        $this->cm = $cm;
     }
 
     function edit() : InvMenu {
@@ -47,9 +48,9 @@ class EditItemMenu {
             $slot = 13;
         }
         $this->menu->setName("Edit shop {$this->config->title}");
-        $saveitem = Utils::getIntItem(160, 13);
-        $saveitem->setCustomName("§rSave the item");
-        $this->menu->getInventory()->setItem(26, $saveitem);
+        $saveitem = Utils::getIntItem(160, 14);
+        $saveitem->setCustomName("§rDelete the item");
+        $this->menu->getInventory()->setItem(17, $saveitem);
         $this->menu->getInventory()->setItem($slot, $item);
 
         // Money part
@@ -73,25 +74,47 @@ class EditItemMenu {
         $qtadecrease->setCustomName("§r-1");
         $this->menu->getInventory()->setItem(22, $qtadecrease);
 
-        $dir = $this->dir;
+        $cm = $this->cm;
         $config = $this->config;
 
         $reservedslot = 13;
 
-        $this->menu->setListener(function($transaction) use (&$object, $dir, $config, $index, $reservedslot) {
+        $this->menu->setListener(function($transaction) use (&$object, $cm, $config, $index, $reservedslot) {
             $item = $transaction->getItemClicked();
             $action = $transaction->getAction();
-            $change = "price";
+            if ($action->getSlot() == 17) {
+                // Oh shit, we need to delete this!
+                $config->items[$index] = null;
+                unset($config->items[$index]);
+                $cm->set($cm->getSingleKey(), json_encode($config));
+                $retmenu = new EditMenu($cm, $cm->getSingleKey());
+                $retmenu->send($transaction->getPlayer());
+            }
+            $change = "nothing";
             if ($item->getName() == "§r+1") {
-                $change = "count";
-                $object->count++;
+                if ($object->count +1 > 64) {
+                    $transaction->getPlayer()->sendMessage("You can't sell more than 64 items!");
+                } else {
+                    $change = "count";
+                    $object->count++;
+                }
             } elseif ($item->getName() == "§r-1") {
-                $object->count--;
-                $change = 'count';
+                if ($object->count -1 <= 0) {
+                    $transaction->getPlayer()->sendMessage("You can't sell 0 items!");
+                } else {
+                    $object->count--;
+                    $change = 'count';
+                }
             } elseif ($item->getName() == "§r-1$") {
-                $object->price--;
+                if ($object->price - 1 <= 0) {
+                    $transaction->getPlayer()->sendMessage("You can't sell this item for 0$");
+                } else {
+                    $change = "price";
+                    $object->price--;
+                }
             } elseif ($item->getName() == "§r+1$") {
                 $object->price++;
+                $change = "price";
             } elseif ($action->getSlot() == $reservedslot && $action->getSourceItem() != null) {
                 $object->id = $action->getTargetItem()->getTypeId();
                 $object->meta = 0;
@@ -121,7 +144,7 @@ class EditItemMenu {
                 }
             }
             $config->items[$index] = $object;
-            file_put_contents($dir, json_encode($config));
+            $cm->set($cm->getSingleKey(), json_encode($config));
             return $transaction->discard();
         });
         return $this->menu;
