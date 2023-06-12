@@ -26,7 +26,7 @@ class EditMenu {
         $this->menu->setName("Edit menu {$this->config->title}");
         $saveitem = Utils::getIntItem(160, 13);
         $saveitem->setCustomName("§rSave the Store");
-        $this->menu->getInventory()->setItem(31, $saveitem);
+        $this->menu->getInventory()->setItem(26, $saveitem);
         $slotcount = 9;
         for ($a = 0; $a < 8; $a++) {
             $item = $this->config->items[$a] ?? (object)['id' => 160, 'meta' => 8, 'price' => 'ND', 'count' => 1];
