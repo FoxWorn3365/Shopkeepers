@@ -23,7 +23,7 @@ class CreateMenu {
         $this->menu->setName("Create your shop!");
         $item = Utils::getIntItem(160, 13);
         $item->setCustomName("§rCreate the Shop");
-        $this->menu->getInventory()->setItem(30, $item);
+        $this->menu->getInventory()->setItem(20, $item);
 
         $dir = $this->dir;
         $this->menu->setListener(function($transaction) use ($dir) {
