@@ -106,8 +106,8 @@ class Core extends PluginBase implements Listener {
                 return false;
             }
             // Let's summon a villager with these data
-            $pos = $sender->getPosition();
-            $villager = new Villager($pos->getLevel(), Villager::createBaseNBT($pos, new \pocketmine\math\Vector3(0,0,0)));
+            $pos = $sender->getLocation();
+            $villager = new Villager($pos);
             $villager->spawnToAll();
             return true;
         }
