@@ -12,6 +12,8 @@ use pocketmine\item\VanillaItems;
 use muqsit\invmenu\InvMenuHandler;
 use muqsit\invmenu\InvMenu;
 use pocketmine\item\Item;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
 use FoxWorn3365\Shopkeepers\Menu\CreateMenu;
@@ -43,5 +45,9 @@ class Core extends PluginBase implements Listener {
     public function onPlayerEntityInteract(Interaction $event) : void {
         $menu = new CreateMenu($this->getDataFolder());
         $menu->create()->send($event->getPlayer());
+    }
+
+    public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool{
+        var_dump($args);
     }
 }

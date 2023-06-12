@@ -3,3 +3,43 @@ version: 0.1
 api: 5.0.0
 main: FoxWorn3365\Shopkeepers\Core
 author: FoxWorn3365
+
+commands:
+  shopkeepers:
+    description: The main shopkeepers command
+    usage: "/shopkeepers [list|create|summon|admin] [shopname|list|create|summon] [adminshopname]"
+    aliases:
+      - sk
+      - shopk
+    permission: shopkeepers.base
+    permission-message: "You do not have permission to use this example command!"
+
+permissions:
+  shopkeepers.base:
+    description: "Allows users to use the base command"
+    # Default state of the permission. Explanation of each value:
+    # op: only op players have this permission by default
+    # true: everyone has this permission by default
+    # false: no one has this permission by default
+    default: true
+  shopkeepers.shop.summon:
+    description: "Allows users to summon player's shop"
+    default: true
+  shopkeepers.shop.create:
+    description: "Allow users to create and edit a shop"
+    default: true
+  shopkeepers.shop.list:
+    description: "Allow users to see a list of their shops"
+    default: true
+  shopkeepers.shop.bypasslimit:
+    descritpion: "Allow users to bypass the shop limit"
+    default: op
+  shopkeepers.adminshop.summon:
+    description: "Allows users to summon player's shop"
+    default: op
+  shopkeepers.adminshop.create:
+    description: "Allow users to create and edit a shop"
+    default: op
+  shopkeepers.adminshop.list:
+    description: "Allow users to see a list of their shops"
+    default: op

@@ -92,10 +92,12 @@ class EditItemMenu {
                 $object->price--;
             } elseif ($item->getName() == "§r+1$") {
                 $object->price++;
-            } elseif ($action->getSlot() == $reservedslot && $action->getTargetItem() == null && $action->getSourceItem() != null) {
+            } elseif ($action->getSlot() == $reservedslot && $action->getSourceItem() != null) {
                 $object->id = $action->getTargetItem()->getId();
                 $object->meta = 0;
                 $change = "object";
+            } else {
+                $change = "nothing";
             }
             if ($change == "price") {
                 $money = Utils::getIntItem(160, 8);
