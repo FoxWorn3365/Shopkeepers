@@ -73,7 +73,7 @@ class Core extends PluginBase implements Listener {
             }
             // Create the config 
             // OOOO why are u running? before, check if there's also an existing name
-            if ($shop->get()->{$name} !== null) {
+            if ($shop->get()?->{$name} !== null) {
                 $sender->sendMessage("You already have a shop called {$name}!");
                 return false;
             }
@@ -88,7 +88,7 @@ class Core extends PluginBase implements Listener {
             return true;
         } elseif ($args[0] == "edit") {
             $name = $args[1];
-            if ($shop->get()->{$name} === null) {
+            if ($shop->get()?->{$name} === null) {
                 $sender->sendMessage("You don't have a shop called {$name}!");
                 return false;
             }
@@ -101,7 +101,7 @@ class Core extends PluginBase implements Listener {
             return true;
         } elseif ($args[0] == "summon") {
             $name = $args[1];
-            if ($shop->get()->{$name} === null) {
+            if ($shop->get()?->{$name} === null) {
                 $sender->sendMessage("You don't have a shop called {$name}!");
                 return false;
             }
