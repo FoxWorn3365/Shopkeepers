@@ -27,9 +27,15 @@ class EditItemMenu {
     }
 
     function edit() : InvMenu {
-        $object = (object)$this->config->items[$this->slot-9] ?? (object)['id' => null, 'price' => 1, 'count' => 1];
+        $index = $this->slot-18;
+        $object = @$this->config->items[$index];
+        if ($object === null) {
+            $object = (object)['id' => null, 'price' => 1, 'count' => 1];
+        } else {
+            $object = (object)$object;
+        }
+
         $item = $object->id;
-        $index = $this->slot-9;
         if ($item === null) {
             $item = Utils::getIntItem(160, 4);
             $item->setCustomName('Change the block at my right!');
@@ -39,7 +45,7 @@ class EditItemMenu {
             $item->setCount($object->count);
             $slot = 13;
         }
-        $this->menu->setName("Edit menu {$this->config->title}");
+        $this->menu->setName("Edit shop {$this->config->title}");
         $saveitem = Utils::getIntItem(160, 13);
         $saveitem->setCustomName("§rSave the item");
         $this->menu->getInventory()->setItem(31, $saveitem);

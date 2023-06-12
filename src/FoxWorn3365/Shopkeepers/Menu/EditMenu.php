@@ -29,10 +29,11 @@ class EditMenu {
         $this->menu->getInventory()->setItem(26, $saveitem);
         $slotcount = 9;
         for ($a = 0; $a < 8; $a++) {
+            var_dump($this->config);
             $item = $this->config->items[$a] ?? (object)['id' => 160, 'meta' => 8, 'price' => 'ND', 'count' => 1];
             $itemconstructor = Utils::getItem("{$item->id}:{$item->meta}");
             $itemconstructor->setCount($item->count);
-            if ($itemconstructor->getVanillaName() == 'Light Gray Stained Glass Pane') {
+            if ($itemconstructor->getVanillaName() == 'Stained Glass Pane') {
                 $displayname = "No item set!";
             } else {
                 $displayname = $itemconstructor->getVanillaName();
