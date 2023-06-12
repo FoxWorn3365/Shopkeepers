@@ -20,7 +20,7 @@ class Utils {
     static function getIntItem(int $id, int $meta) {
         $itemid = "{$id}:{$meta}";
         try {
-			$item = LegacyStringToItemParser::getInstance()->parse(trim($itemid));
+			$item = LegacyStringToItemParser::getInstance()->parse(trim($itemid))->getBlock()->asItem();
 			return $item->getBlock()->getStateId();
 		} catch (LegacyStringToItemParserException) {
 			return VanillaItems::FLINT_AND_STEEL();
