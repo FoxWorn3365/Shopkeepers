@@ -8,7 +8,7 @@ use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 
 class Utils {
-    static function getItem(string $itemid) : ?Item {
+    static function getItem(string $itemid) {
 		try {
 			$item = LegacyStringToItemParser::getInstance()->parse(trim($itemid))->getItem();
 			return $item->getBlock()->getStateId();
@@ -17,7 +17,7 @@ class Utils {
 		}
     }
 
-    static function getIntItem(int $id, int $meta) : ?Item {
+    static function getIntItem(int $id, int $meta) {
         $itemid = "{$id}:{$meta}";
         try {
 			$item = LegacyStringToItemParser::getInstance()->parse(trim($itemid))->getItem();
