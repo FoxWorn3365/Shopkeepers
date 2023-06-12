@@ -132,8 +132,9 @@ class EditItemMenu {
             } elseif ($change == "object") {
                 $sellitem = $action->getSourceItem();
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
-                    $inventory->setItem($reservedslot, $sellitem);
-                    break;
+                    var_dump($inventory);
+                    //@$inventory->setItem($reservedslot, $sellitem);
+                    //break;
                 }
             } elseif ($change == 'count') {
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
