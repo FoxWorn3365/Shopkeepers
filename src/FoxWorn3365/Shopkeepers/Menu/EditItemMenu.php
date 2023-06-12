@@ -16,6 +16,7 @@ class EditItemMenu {
     protected object $config;
     public string|int $id;
     public int $slot;
+    public string $dir;
 
     function __construct(object $config, string $id, int $slot, string $dir) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
@@ -25,7 +26,7 @@ class EditItemMenu {
         $this->dir = $dir;
     }
 
-    function edit() : void {
+    function edit() : InvMenu {
         $object = $this->config->items[$this->slot-9] ?? (array)['id' => null, 'price' => 1, 'count' => 1];
         $item = $object->id;
         $index = $this->slot-9;
@@ -38,7 +39,7 @@ class EditItemMenu {
             $item->setCount($object->count);
             $slot = 13;
         }
-        $this->menu->setTitle("Edit menu {$this->config->title}");
+        $this->menu->setName("Edit menu {$this->config->title}");
         $saveitem = Utils::getIntItem(160, 13);
         $saveitem->setCustomName("§rSave the item");
         $this->menu->getInventory()->setItem(31, $saveitem);
@@ -46,7 +47,7 @@ class EditItemMenu {
 
         // Money part
         $money = Utils::getIntItem(160, 8);
-        $money->setName("§rPrice: {$object->price}$");
+        $money->setCustomName("§rPrice: {$object->price}$");
         $this->menu->getInventory()->setItem(9, $money);
 
         // Price increasator and decreasator
@@ -83,5 +84,6 @@ class EditItemMenu {
             file_put_contents($dir, json_encode($config));
             return $transaction->discard();
         });
+        return $this->menu;
     }
 }

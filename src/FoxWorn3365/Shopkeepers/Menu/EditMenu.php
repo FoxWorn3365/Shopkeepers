@@ -23,7 +23,7 @@ class EditMenu {
     }
 
     public function create() : InvMenu {
-        $this->menu->setTitle("Edit menu {$this->config->title}");
+        $this->menu->setName("Edit menu {$this->config->title}");
         $saveitem = Utils::getIntItem(160, 13);
         $saveitem->setCustomName("§rSave the Store");
         $this->menu->getInventory()->setItem(31, $saveitem);
@@ -43,12 +43,12 @@ class EditMenu {
         $config = $this->config;
         $dir = $this->dir;
 
-        $this->menu->setListener(function($transaction) {
+        $this->menu->setListener(function($transaction) use ($config, $dir) {
             $item = $transaction->getItemClicked();
             $slot = $transaction->getAction()->getSlot();
             if (str_replace(' ', '_', strtolower($item->getVanillaName())) !== 'green_stained_glass_pane') {
                 // Let's edit the item
-                $menu = new EditItemMenu($config, str_replace(' ', '_', strtoupper($item->getVanillaName())), $slot, $this->dir);
+                $menu = new EditItemMenu($config, str_replace(' ', '_', strtoupper($item->getVanillaName())), $slot, $dir);
                 $menu = $menu->edit();
                 $menu->send($transaction->getPlayer());
             }

@@ -29,7 +29,7 @@ class CreateMenu {
         $this->menu->setListener(function($transaction) use ($dir) {
             $item = $transaction->getItemClicked();
             if ($item->getName() == "§rCreate the Shop") {
-                $mn = new EditMenu((object)['items' => ['id' => 257, 'meta' => 0, 'count' => 2, 'price' => 30]], $dir);
+                $mn = new EditMenu((object)['title' => 'jhbsdfbhjsdfu32', 'items' => ['id' => 257, 'meta' => 0, 'count' => 2, 'price' => 30]], $dir);
                 $mn->create()->send($transaction->getPlayer());
             }
             return $transaction->discard();
