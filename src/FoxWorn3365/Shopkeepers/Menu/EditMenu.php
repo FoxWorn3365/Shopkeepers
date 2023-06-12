@@ -23,7 +23,7 @@ class EditMenu {
     }
 
     public function create() : InvMenu {
-        $this->menu->setName("Edit menu {$this->config->title}");
+        $this->menu->setName("Edit shop {$this->config->title}");
         $saveitem = Utils::getIntItem(160, 13);
         $saveitem->setCustomName("§rSave the Store");
         $this->menu->getInventory()->setItem(26, $saveitem);

@@ -48,7 +48,7 @@ class EditItemMenu {
         $this->menu->setName("Edit shop {$this->config->title}");
         $saveitem = Utils::getIntItem(160, 13);
         $saveitem->setCustomName("§rSave the item");
-        $this->menu->getInventory()->setItem(31, $saveitem);
+        $this->menu->getInventory()->setItem(26, $saveitem);
         $this->menu->getInventory()->setItem($slot, $item);
 
         // Money part
