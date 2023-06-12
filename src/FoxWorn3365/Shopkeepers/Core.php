@@ -49,5 +49,6 @@ class Core extends PluginBase implements Listener {
 
     public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool{
         var_dump($args);
+        return true;
     }
 }

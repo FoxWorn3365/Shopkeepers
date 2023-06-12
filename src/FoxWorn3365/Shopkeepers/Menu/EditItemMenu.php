@@ -93,7 +93,7 @@ class EditItemMenu {
             } elseif ($item->getName() == "§r+1$") {
                 $object->price++;
             } elseif ($action->getSlot() == $reservedslot && $action->getSourceItem() != null) {
-                $object->id = $action->getTargetItem()->getId();
+                $object->id = $action->getTargetItem()->getTypeId();
                 $object->meta = 0;
                 $change = "object";
             } else {
