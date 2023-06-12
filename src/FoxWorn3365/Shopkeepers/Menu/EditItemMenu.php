@@ -64,7 +64,7 @@ class EditItemMenu {
         $this->menu->getInventory()->setItem(4, $qtaincrease);
         $qtadecrease = Utils::getIntItem(95, 14);
         $qtadecrease->setCustomName("§r-1");
-        $this->menu->getInventory()->setItem(22, $qatadecrease);
+        $this->menu->getInventory()->setItem(22, $qtadecrease);
 
         $dir = $this->dir;
         $config = $this->config;
