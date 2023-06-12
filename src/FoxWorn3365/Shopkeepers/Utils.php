@@ -10,8 +10,7 @@ use pocketmine\item\VanillaItems;
 class Utils {
     static function getItem(string $itemid) {
 		try {
-			$item = LegacyStringToItemParser::getInstance()->parse(trim($itemid));
-			return $item->getBlock()->getStateId();
+			return LegacyStringToItemParser::getInstance()->parse(trim($itemid));
 		} catch (LegacyStringToItemParserException) {
 			return VanillaItems::FLINT_AND_STEEL();
 		}
@@ -20,8 +19,7 @@ class Utils {
     static function getIntItem(int $id, int $meta) {
         $itemid = "{$id}:{$meta}";
         try {
-			$item = LegacyStringToItemParser::getInstance()->parse(trim($itemid))->getBlock()->asItem();
-			return $item->getBlock()->getStateId();
+			return LegacyStringToItemParser::getInstance()->parse(trim($itemid));
 		} catch (LegacyStringToItemParserException) {
 			return VanillaItems::FLINT_AND_STEEL();
 		}
