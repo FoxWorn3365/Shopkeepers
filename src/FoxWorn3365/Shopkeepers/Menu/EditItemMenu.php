@@ -21,7 +21,7 @@ class EditItemMenu {
 
     function __construct(ConfigManager $cm, string $id, int $slot) {
         $this->menu = InvMenu::create(InvMenu::TYPE_CHEST);
-        $this->config = $cm->get($cm->getSingleKey());
+        $this->config = $cm->get()->{$cm->getSingleKey()};
         $this->id = $id;
         $this->slot = $slot;
         $this->cm = $cm;
@@ -88,7 +88,7 @@ class EditItemMenu {
                 unset($config->items[$index]);
                 $cm->set($cm->getSingleKey(), json_encode($config));
                 $retmenu = new EditMenu($cm, $cm->getSingleKey());
-                $retmenu->send($transaction->getPlayer());
+                $retmenu->create()->send($transaction->getPlayer());
             }
             $change = "nothing";
             if ($item->getName() == "§r+1") {

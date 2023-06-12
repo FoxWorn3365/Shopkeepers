@@ -65,8 +65,10 @@ class Core extends PluginBase implements Listener {
             } else {
                 $sender->sendMessage("You don't have any shop(s) here!");
             }
-        } elseif ($arg[0] == "create") {
-            $name = $arg[1] ?? $this->generateRandomString(7);
+        } elseif ($args[0] == "create") {
+            if (empty($name = $args[1])) {
+                $name = $this->generateRandomString(7);
+            }
             // Create the config 
             $newshop = new \stdClass;
             $newshop->title = $name;
@@ -75,7 +77,7 @@ class Core extends PluginBase implements Listener {
             $newshop->items = [];
             $shop->set($name, $newshop);
             $menu = new EditMenu($shop, $name);
-            $menu->send($sender);
+            $menu->create()->send($sender);
             return true;
         }
         var_dump($args);

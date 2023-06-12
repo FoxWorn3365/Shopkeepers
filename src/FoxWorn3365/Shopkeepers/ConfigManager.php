@@ -25,7 +25,7 @@ class ConfigManager {
         if ($this->is()) {
             return json_decode(file_get_contents($this->dir));
         } else {
-            return [];
+            return new \stdClass;
         }
     }
 
