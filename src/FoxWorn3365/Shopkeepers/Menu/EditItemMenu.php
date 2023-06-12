@@ -54,21 +54,21 @@ class EditItemMenu {
         // Money part
         $money = Utils::getIntItem(160, 8);
         $money->setCustomName("§rPrice: {$object->price}$");
-        $this->menu->getInventory()->setItem(9, $money);
+        $this->menu->getInventory()->setItem(10, $money);
 
         // Price increasator and decreasator
-        $moneyincrease = Utils::getIntItem(95, 13);
+        $moneyincrease = Utils::getIntItem(35, 13);
         $moneyincrease->setCustomName("§r+1$");
         $this->menu->getInventory()->setItem(1, $moneyincrease);
-        $moneydecrease = Utils::getIntItem(95, 14);
+        $moneydecrease = Utils::getIntItem(35, 14);
         $moneydecrease->setCustomName("§r-1$");
         $this->menu->getInventory()->setItem(19, $moneydecrease);
 
         // Qta increasator and decreasator
-        $qtaincrease = Utils::getIntItem(95, 13);
+        $qtaincrease = Utils::getIntItem(35, 13);
         $qtaincrease->setCustomName("§r+1");
         $this->menu->getInventory()->setItem(4, $qtaincrease);
-        $qtadecrease = Utils::getIntItem(95, 14);
+        $qtadecrease = Utils::getIntItem(35, 14);
         $qtadecrease->setCustomName("§r-1");
         $this->menu->getInventory()->setItem(22, $qtadecrease);
 
@@ -97,10 +97,16 @@ class EditItemMenu {
             if ($change == "price") {
                 $money = Utils::getIntItem(160, 8);
                 $money->setCustomName("§rPrice: {$object->price}$");
-                $transaction->getTransaction()->getInventories()[0]->setItem(9, $money);
+                foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                    $inventory->setItem(10, $money);
+                    break;
+                }
             } elseif ($change == "object") {
                 $sellitem = Utils::getIntItem(160, 8);
-                $transaction->getTransaction()->getInventories()[0]->setItem($reservedslot, $sellitem);
+                foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                    $inventory->setItem($reservedslot, $sellitem);
+                    break;
+                }
             }
             $config->items[$index] = $object;
             file_put_contents($dir, json_encode($config));
