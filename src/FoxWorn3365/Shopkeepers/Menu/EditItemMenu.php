@@ -83,9 +83,11 @@ class EditItemMenu {
             $action = $transaction->getAction();
             $change = "price";
             if ($item->getName() == "§r+1") {
+                $change = "count";
                 $object->count++;
             } elseif ($item->getName() == "§r-1") {
                 $object->count--;
+                $change = 'count';
             } elseif ($item->getName() == "§r-1$") {
                 $object->price--;
             } elseif ($item->getName() == "§r+1$") {
@@ -103,8 +105,15 @@ class EditItemMenu {
                     break;
                 }
             } elseif ($change == "object") {
-                $sellitem = Utils::getIntItem(160, 8);
+                $sellitem = $action->getSourceItem();
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                    $inventory->setItem($reservedslot, $sellitem);
+                    break;
+                }
+            } elseif ($change == 'count') {
+                foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                    $item = $inventory->getItem($reservedslot);
+                    $item->setCount($object->count);
                     $inventory->setItem($reservedslot, $sellitem);
                     break;
                 }
