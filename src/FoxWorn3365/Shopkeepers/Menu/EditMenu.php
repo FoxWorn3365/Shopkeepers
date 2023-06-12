@@ -32,8 +32,13 @@ class EditMenu {
             $item = $this->config->items[$a] ?? (object)['id' => 160, 'meta' => 8, 'price' => 'ND', 'count' => 1];
             $itemconstructor = Utils::getItem("{$item->id}:{$item->meta}");
             $itemconstructor->setCount($item->count);
-            $itemconstructor->setCustomName($itemconstructor->getVanillaName() . "\nPrice: {$item->price}$");
-            $itemmenu = Utils::getIntItem(35, 12);
+            if ($itemconstructor->getVanillaName() == 'Light Gray Stained Glass Pane') {
+                $displayname = "No item set!";
+            } else {
+                $displayname = $itemconstructor->getVanillaName();
+            }
+            $itemconstructor->setCustomName("§r{$displayname}\nPrice: {$item->price}$");
+            $itemmenu = Utils::getIntItem(35, 1);
             $itemmenu->setCustomName("§rEdit this item");
             $this->menu->getInventory()->setItem($slotcount, $itemconstructor);
             $this->menu->getInventory()->setItem($slotcount+9, $itemmenu);

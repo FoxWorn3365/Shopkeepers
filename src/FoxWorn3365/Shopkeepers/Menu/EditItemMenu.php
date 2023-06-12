@@ -27,7 +27,7 @@ class EditItemMenu {
     }
 
     function edit() : InvMenu {
-        $object = $this->config->items[$this->slot-9] ?? (array)['id' => null, 'price' => 1, 'count' => 1];
+        $object = (object)$this->config->items[$this->slot-9] ?? (object)['id' => null, 'price' => 1, 'count' => 1];
         $item = $object->id;
         $index = $this->slot-9;
         if ($item === null) {
@@ -69,8 +69,12 @@ class EditItemMenu {
         $dir = $this->dir;
         $config = $this->config;
 
-        $this->menu->setListener(function($transaction) use (&$object, $dir, $config, $index) {
+        $reservedslot = 13;
+
+        $this->menu->setListener(function($transaction) use (&$object, $dir, $config, $index, $reservedslot) {
             $item = $transaction->getItemClicked();
+            $action = $transaction->getAction();
+            $change = "price";
             if ($item->getName() == "§r+1") {
                 $object->count++;
             } elseif ($item->getName() == "§r-1") {
@@ -79,6 +83,18 @@ class EditItemMenu {
                 $object->price--;
             } elseif ($item->getName() == "§r+1$") {
                 $object->price++;
+            } elseif ($action->getSlot() == $reservedslot && $action->getTargetItem() == null && $action->getSourceItem() != null) {
+                $object->id = $action->getTargetItem()->getId();
+                $object->meta = 0;
+                $change = "object";
+            }
+            if ($change == "price") {
+                $money = Utils::getIntItem(160, 8);
+                $money->setCustomName("§rPrice: {$object->price}$");
+                $transaction->getTransaction()->getInventories()[0]->setItem(9, $money);
+            } elseif ($change == "object") {
+                $sellitem = Utils::getIntItem(160, 8);
+                $transaction->getTransaction()->getInventories()[0]->setItem($reservedslot, $sellitem);
             }
             $config->items[$index] = $object;
             file_put_contents($dir, json_encode($config));
