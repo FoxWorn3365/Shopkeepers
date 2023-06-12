@@ -42,6 +42,7 @@ class EditItemMenu {
             $item->setCount(1);
             $slot = 12;
         } else {
+            $item = Utils::getIntItem($object->id, $object->meta);
             $item->setCount($object->count);
             $slot = 13;
         }
