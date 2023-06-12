@@ -15,6 +15,8 @@ use pocketmine\item\Item;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
+use \pocketmine\level\Position;
+use \pocketmine\entity\Villager;
 
 use FoxWorn3365\Shopkeepers\Menu\CreateMenu;
 use FoxWorn3365\Shopkeepers\Menu\EditMenu;
@@ -57,8 +59,8 @@ class Core extends PluginBase implements Listener {
         if ($args[0] == "list") {
             if ($shop->is()) {
                 $list = "";
-                foreach ($shop->get() as $item) {
-                    $list .= "\nMenu: {$item->title}";
+                foreach ($shop->get() as $title => $item) {
+                    $list .= "\nMenu: {$title}";
                 }
                 $sender->sendMessage("Your shops: {$list}");
                 return true;
@@ -70,6 +72,11 @@ class Core extends PluginBase implements Listener {
                 $name = $this->generateRandomString(7);
             }
             // Create the config 
+            // OOOO why are u running? before, check if there's also an existing name
+            if ($shop->get()->{$name} !== null) {
+                $sender->sendMessage("You already have a shop called {$name}!");
+                return false;
+            }
             $newshop = new \stdClass;
             $newshop->title = $name;
             $newshop->owner = $sender->getName();
@@ -78,6 +85,30 @@ class Core extends PluginBase implements Listener {
             $shop->set($name, $newshop);
             $menu = new EditMenu($shop, $name);
             $menu->create()->send($sender);
+            return true;
+        } elseif ($args[0] == "edit") {
+            $name = $args[1];
+            if ($shop->get()->{$name} === null) {
+                $sender->sendMessage("You don't have a shop called {$name}!");
+                return false;
+            }
+            // Let's open the edit interface
+            $menu = new EditMenu($shop, $name);
+            $menu->create()->send($sender);
+            return true;
+        } elseif ($args[0] == "info") {
+            $sender->sendMessage("Shopkeepers for PMMP by FoxWorn3365\nGitHub: https://github.com/FoxWorn3365/Shopkeepers");  
+            return true;
+        } elseif ($args[0] == "summon") {
+            $name = $args[1];
+            if ($shop->get()->{$name} === null) {
+                $sender->sendMessage("You don't have a shop called {$name}!");
+                return false;
+            }
+            // Let's summon a villager with these data
+            $pos = $sender->getPosition();
+            $villager = new Villager($pos->getLevel(), Villager::createBaseNBT($pos, new \pocketmine\math\Vector3(0,0,0)));
+            $villager->spawnToAll();
             return true;
         }
         var_dump($args);

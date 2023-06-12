@@ -11,7 +11,7 @@ class ConfigManager {
 
     function __construct(Player $player, string $basedir) {
         $this->player = $player;
-        $this->dir = $basedir . $player->getName() . 'json';
+        $this->dir = $basedir . $player->getName() . '.json';
     }
 
     public function is() : bool {

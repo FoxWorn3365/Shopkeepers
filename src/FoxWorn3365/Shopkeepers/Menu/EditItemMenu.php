@@ -8,6 +8,7 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use muqsit\invmenu\InvMenuTransactionResult;
 use muqsit\invmenu\InvMenuTransaction;
+use muqsit\invmenu\inventory\InvMenuInventory;
 
 use FoxWorn3365\Shopkeepers\Utils;
 use FoxWorn3365\Shopkeepers\ConfigManager;
@@ -117,7 +118,7 @@ class EditItemMenu {
                 $change = "price";
             } elseif ($action->getSlot() == $reservedslot && $action->getSourceItem() != null) {
                 $object->id = $action->getTargetItem()->getTypeId();
-                $object->meta = 0;
+                $object->meta = $action->getTargetItem()->getTypeId();
                 $change = "object";
             } else {
                 $change = "nothing";
@@ -126,18 +127,25 @@ class EditItemMenu {
                 $money = Utils::getIntItem(160, 8);
                 $money->setCustomName("§rPrice: {$object->price}$");
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                    if (!($inventory instanceof InvMenuInventory)) {
+                        continue;
+                    }
                     $inventory->setItem(10, $money);
                     break;
                 }
             } elseif ($change == "object") {
                 $sellitem = $action->getSourceItem();
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
-                    var_dump($inventory);
-                    //@$inventory->setItem($reservedslot, $sellitem);
-                    //break;
+                    if ($inventory instanceof InvMenuInventory) {
+                        $inventory->setItem($reservedslot, $sellitem);
+                        break;
+                    }
                 }
             } elseif ($change == 'count') {
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                    if (!($inventory instanceof InvMenuInventory)) {
+                        continue;
+                    }
                     $item = $inventory->getItem($reservedslot);
                     $item->setCount($object->count);
                     $inventory->setItem($reservedslot, $item);
