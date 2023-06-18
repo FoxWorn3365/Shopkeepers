@@ -5,8 +5,7 @@ Shopkeepers on PMMP? Are u serious?!'!?1''1'!?!1
 Thanks to [Muqsit](https://github.com/Muqsit) for the [InvMenu](https://github.com/Muqsit/InvMenu) virion who have contributed to the creation for this plugin!<br>
 Also [this plugin](https://github.com/FrozenArea/TradeAPI) helped me!
 
-## Demostration video (YouTube)
-<iframe width="560" height="315" src="https://www.youtube.com/embed/sustUWTgmMo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+## [Demostration video (YouTube)](https://youtu.be/sustUWTgmMo)
 
 ## Commands
 The base command is `/shopkeepers` but you can also use `/sk`, `/skeepers` and `/shopk` as alias.
