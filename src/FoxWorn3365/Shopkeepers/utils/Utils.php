@@ -1,6 +1,6 @@
 <?php
 
-namespace FoxWorn3365\Shopkeepers;
+namespace FoxWorn3365\Shopkeepers\utils;
 
 use pocketmine\item\LegacyStringToItemParser;
 use pocketmine\item\LegacyStringToItemParserException;
@@ -16,7 +16,7 @@ class Utils {
 		}
     }
 
-    static function getIntItem(int $id, int $meta) {
+    static function getIntItem(int $id, int $meta = 0) {
         $itemid = "{$id}:{$meta}";
         try {
 			return LegacyStringToItemParser::getInstance()->parse(trim($itemid));

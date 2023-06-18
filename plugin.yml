@@ -1,18 +1,20 @@
 name: Shopkeepers
-version: 0.1
+version: 0.7.0
 api: 5.0.0
 main: FoxWorn3365\Shopkeepers\Core
 author: FoxWorn3365
+website: https://github.com/FoxWorn3365/Shopkeepers
 
 commands:
   shopkeepers:
     description: The main shopkeepers command
-    usage: "/shopkeepers [list|create|summon|admin] [shopname|list|create|summon] [adminshopname]"
+    usage: "/shopkeepers [list|create|summon|rename|edit|info|inventory] <NAME>"
     aliases:
       - sk
       - shopk
+      - skeepers
     permission: shopkeepers.base
-    permission-message: "You do not have permission to use this example command!"
+    permission-message: "You do not have permission to use the base command!"
 
 permissions:
   shopkeepers.base:
@@ -26,20 +28,35 @@ permissions:
     description: "Allows users to summon player's shop"
     default: true
   shopkeepers.shop.create:
-    description: "Allow users to create and edit a shop"
+    description: "Allow users to create a shop"
+    default: true
+  shopkeepers.shop.edit:
+    description: "Allow users to edit they'r shop"
     default: true
   shopkeepers.shop.list:
     description: "Allow users to see a list of their shops"
     default: true
-  shopkeepers.shop.bypasslimit:
-    descritpion: "Allow users to bypass the shop limit"
+  shopkeepers.shop.remove:
+    description: "Allow users to despawn they'r Villager shops"
+    default: true
+  shopkeepers.shop.rename:
+    descritpion: "Allow users to rename they'r shops"
+    default: true
+  shopkeepers.shop.namevisible:
+    description: "Allow users to decide if the shopkepeer's name should be visible or no"
+    default: true
+  shopkeepers.shop.admin:
+    description: "Allows users to decide if the shopkeepers should be admin or none"
     default: op
-  shopkeepers.adminshop.summon:
-    description: "Allows users to summon player's shop"
+  shopkeepers.shop.kill:
+    description: "Allow users to kill every shopkeepers, also of other players"
     default: op
-  shopkeepers.adminshop.create:
-    description: "Allow users to create and edit a shop"
-    default: op
-  shopkeepers.adminshop.list:
-    description: "Allow users to see a list of their shops"
+  shopkeepers.shop.defaultGUI:
+    description: "Allow users to see and use the /sk command without args to open the base GUI"
+    default: true
+  shopkeepers.shop.use:
+    description: "Allow users to use a shopkeeper when they touch it"
+    default: true
+  shopkeepers.shop.allowRemoteInventoryOpen:
+    description: "Allow users to open a shopkeeper's inventory with the command /sk inventory"
     default: op

@@ -2,16 +2,24 @@
 
 namespace FoxWorn3365\Shopkeepers\Menu;
 
-use muqsit\invmenu\InvMenu;
 use pocketmine\item\VanillaItems;
 use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
+
+// Pocketmine Network part
+use pocketmine\network\mcpe\convert\TypeConverter;
+
+// Inventory API (InvMenu)
+use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\InvMenuTransactionResult;
 use muqsit\invmenu\InvMenuTransaction;
 use muqsit\invmenu\inventory\InvMenuInventory;
 
-use FoxWorn3365\Shopkeepers\Utils;
+// Custom
+use FoxWorn3365\Shopkeepers\utils\Utils;
+use FoxWorn3365\Shopkeepers\utils\Factory;
+use FoxWorn3365\Shopkeepers\utils\ItemUtils;
 use FoxWorn3365\Shopkeepers\ConfigManager;
+use FoxWorn3365\Shopkeepers\utils\SerializedItem;
 
 class EditItemMenu {
     protected InvMenu $menu;
@@ -30,67 +38,203 @@ class EditItemMenu {
 
     function edit() : InvMenu {
         $index = $this->slot-18;
+        if ($index < 0) {
+            return $this->menu;
+        }
         $object = @$this->config->items[$index];
+        $defaultconfig = (object)[
+            'sell' => null,
+            'buy' => null
+        ];
         if ($object === null) {
-            $object = (object)['id' => null, 'price' => 1, 'count' => 1];
+            $object = (object)$defaultconfig;
         } else {
             $object = (object)$object;
         }
 
-        $item = $object->id;
-        if ($item === null) {
-            $item = Utils::getIntItem(160, 4);
-            $item->setCustomName('Change the block at my right!');
-            $item->setCount(1);
-            $slot = 12;
-        } else {
-            $item = Utils::getIntItem($object->id, $object->meta);
-            $item->setCount($object->count);
-            $slot = 13;
-        }
-        $this->menu->setName("Edit shop {$this->config->title}");
-        $saveitem = Utils::getIntItem(160, 14);
-        $saveitem->setCustomName("§rDelete the item");
-        $this->menu->getInventory()->setItem(17, $saveitem);
-        $this->menu->getInventory()->setItem($slot, $item);
+        // Check for buy and sell
 
+
+        // SLOT MAPPING
+        // 13 => Reserved slot for sell item
+        // 10 => Reserved slot for buy item
+        // 12 => Semi-reserved slot for sign
+        // 9 => Semi-reserved slot for sign
+        $slot = new \stdClass;
+        $slot->sell = 13;
+        $slot->buy = 10;
+        $slot->sellsign = 12;
+        $slot->buysign = 9;
+
+        $sell = $object->sell;
+        $buy = $object->buy;
+        $signsell = Factory::sign(4, 'Put what do you want to sell to my right!');
+        $signbuy = Factory::sign(4, 'Put what do you want to buy to my right!');
+
+        // Load the sell item
+        if ($sell === null) {
+            $sellitem = VanillaItems::AIR();
+        } else {
+            $sellitem = SerializedItem::decode($sell);
+        }
+
+        // Load the buy item
+        if ($buy === null) {
+            $buyitem = VanillaItems::AIR();
+        } else {
+            $buyitem = SerializedItem::decode($buy);
+        }
+
+        // Now load simple screen
+        $this->menu->setName("Editing shop {$this->config->title}");
+        $this->menu->getInventory()->setItem(17, Factory::item(160, 14, "Delete the item"));
+
+        /*
+        NO MORE MONEY MUAHAHAHAHAHA
         // Money part
         $money = Utils::getIntItem(160, 8);
         $money->setCustomName("§rPrice: {$object->price}$");
         $this->menu->getInventory()->setItem(10, $money);
+        */
 
-        // Price increasator and decreasator
-        $moneyincrease = Utils::getIntItem(35, 13);
-        $moneyincrease->setCustomName("§r+1$");
-        $this->menu->getInventory()->setItem(1, $moneyincrease);
-        $moneydecrease = Utils::getIntItem(35, 14);
-        $moneydecrease->setCustomName("§r-1$");
-        $this->menu->getInventory()->setItem(19, $moneydecrease);
+        // Buy qta increasator and decreasator
+        $this->menu->getInventory()->setItem(1, Factory::item(35, 13, "+1"));
+        $this->menu->getInventory()->setItem(19, Factory::item(35, 14, "-1"));
 
-        // Qta increasator and decreasator
-        $qtaincrease = Utils::getIntItem(35, 13);
-        $qtaincrease->setCustomName("§r+1");
-        $this->menu->getInventory()->setItem(4, $qtaincrease);
-        $qtadecrease = Utils::getIntItem(35, 14);
-        $qtadecrease->setCustomName("§r-1");
-        $this->menu->getInventory()->setItem(22, $qtadecrease);
+        // Sell qta increasator and decreasator
+        $this->menu->getInventory()->setItem(4, Factory::item(35, 13, "+1"));
+        $this->menu->getInventory()->setItem(22, Factory::item(35, 14, "-1"));
+
+        // Put data
+        $this->menu->getInventory()->setItem(10, $buyitem);
+        $this->menu->getInventory()->setItem(13, $sellitem);
+
+        // Buttons mapping for actions
+        /*
+        $buttons = [
+            1 => 'buymore',
+            19 => 'buyless',
+            4 => 'sellmore',
+            22 => 'sellless',
+            17 => 'delete',
+            10 => 'changebuy',
+            13 => 'changesell'
+        ];
+        */
 
         $cm = $this->cm;
         $config = $this->config;
 
-        $reservedslot = 13;
+        $this->menu->setListener(function($transaction) use (&$object, $cm, $config, $index, $slot) {
+            /*
+            $object = @$cm->get()->{$cm->getSingleKey()}->items[$index];
 
-        $this->menu->setListener(function($transaction) use (&$object, $cm, $config, $index, $reservedslot) {
+            if ($object === null) {
+                $object = new \stdClass;
+            }
+
+            if (@$object->sell === null) {
+                $object->sell = new \stdClass;
+                $object->sell->count = 1;
+            }
+
+            if (@$object->buy === null ) {
+                $object->buy = new \stdClass;
+                $object->buy->count = 1;
+            }
+            */
+            // Nel caso il bro non si aggiornasse bene perché PHP con il & è stupido allora
+            // ci toccherà importare nuovamente la configurazione qua :(
             $item = $transaction->getItemClicked();
             $action = $transaction->getAction();
-            if ($action->getSlot() == 17) {
-                // Oh shit, we need to delete this!
-                $config->items[$index] = null;
-                unset($config->items[$index]);
-                $cm->set($cm->getSingleKey(), json_encode($config));
-                $retmenu = new EditMenu($cm, $cm->getSingleKey());
-                $retmenu->create()->send($transaction->getPlayer());
+
+            // Get inventory with loop
+            foreach ($transaction->getTransaction()->getInventories() as $inventory) {
+                if ($inventory instanceof InvMenuInventory) {
+                    break;
+                }
             }
+
+            // Now let's analyze the slot
+            switch ($action->getSlot()) {
+                case 7:
+                    // Oh crap, we need to delete this!
+                    $config->items[$index] = null;
+                    unset($config->items[$index]);
+                    $cm->set($cm->getSingleKey(), json_encode($config));
+                    $retmenu = new EditMenu($cm, $cm->getSingleKey());
+                    $retmenu->create()->send($transaction->getPlayer());
+                    break;
+                case 1:
+                    $item = $inventory->getItem(10);
+                    if ($item->getCount() + 1 > 64) {
+                        $transaction->getPlayer()->sendMessage("§cYou can't sell an item for more than 64 items!");
+                    } else {
+                        $item->setCount($item->getCount()+1);
+                        $inventory->setItem(10, $item);
+                        $object->buy = SerializedItem::encode($item);
+                    }
+                    break;
+                case 19:
+                    $item = $inventory->getItem(10);
+                    if ($item->getCount()-1 < 1) {
+                        $transaction->getPlayer()->sendMessage("§cYou can't sell an item for less than 1 item!");
+                    } else {
+                        $item->setCount($item->getCount()-1);
+                        $inventory->setItem(10, $item);
+                        $object->buy = SerializedItem::encode($item);
+                    }
+                    break;
+                case 4:
+                    $item = $inventory->getItem(13);
+                    if ($item->getCount()+1 > 64) {
+                        $transaction->getPlayer()->sendMessage("§cYou can't sell more than 64 items!");
+                    } else {
+                        $item->setCount($item->getCount()+1);
+                        $inventory->setItem(13, $item);
+                        $object->sell = SerializedItem::encode($item);
+                    }
+                    break;
+                case 22:
+                    $item = $inventory->getItem(13);
+                    if ($item->getCount()-1 < 1) {
+                        $transaction->getPlayer()->sendMessage("§cYou can't sell less than 1 item!");
+                    } else {
+                        $item->setCount($item->getCount()-1);
+                        $inventory->setItem(13, $item);
+                        $object->sell = SerializedItem::encode($item);
+                    }
+                    break;
+                case 10:
+                    if ($transaction->getItemClickedWith() !== null && $transaction->getItemClickedWith() != VanillaItems::AIR()) {
+                        // Let's change the object also in the inventory
+                        $inventory->clear(10);
+                        // Now let's decode the item
+                        $object->buy = SerializedItem::encode($transaction->getItemClickedWith());
+                        usleep(5000);
+                        $inventory->setItem(10, $transaction->getItemClickedWith());
+                    }
+                    break;
+                case 13:
+                    if ($transaction->getItemClickedWith() !== null && $transaction->getItemClickedWith() != VanillaItems::AIR()) {
+                        // Let's change the object also in the inventory
+                        $inventory->clear(13);
+                        // Now let's decode the item
+                        $object->sell = SerializedItem::encode($transaction->getItemClickedWith());
+                        usleep(5000);
+                        $inventory->setItem(13, $transaction->getItemClickedWith());
+                    }
+                    break;
+            }
+
+            // Finally, save the edited $object Object
+            $config->items[$index] = $object;
+            $cm->set($cm->getSingleKey(), $config);
+
+            // Then, discard the transaction because we don't want to duplicate items!
+            return $transaction->discard();
+        });
+        /*
             $change = "nothing";
             if ($item->getName() == "§r+1") {
                 if ($object->count +1 > 64) {
@@ -117,8 +261,11 @@ class EditItemMenu {
                 $object->price++;
                 $change = "price";
             } elseif ($action->getSlot() == $reservedslot && $action->getSourceItem() != null) {
-                $object->id = $action->getTargetItem()->getTypeId();
-                $object->meta = $action->getTargetItem()->getTypeId();
+                $translator = (new TypeConverter())->getItemTranslator()->toNetworkIdQuiet($transaction->getItemClickedWith());
+                $object->id = $translator[0];
+                $object->meta = $translator[1];
+                var_dump($object);
+                var_dump("NAME:", Utils::getIntItem($object->id, $object->meta)->getName());
                 $change = "object";
             } else {
                 $change = "nothing";
@@ -134,10 +281,13 @@ class EditItemMenu {
                     break;
                 }
             } elseif ($change == "object") {
-                $sellitem = $action->getSourceItem();
+                $sellitem = $transaction->getItemClickedWith();
                 foreach ($transaction->getTransaction()->getInventories() as $inventory) {
                     if ($inventory instanceof InvMenuInventory) {
+                        $inventory->clear($reservedslot);
+                        usleep(250000);
                         $inventory->setItem($reservedslot, $sellitem);
+                        //var_dump($inventory->getItem($reservedslot)->getName());
                         break;
                     }
                 }
@@ -153,9 +303,10 @@ class EditItemMenu {
                 }
             }
             $config->items[$index] = $object;
-            $cm->set($cm->getSingleKey(), json_encode($config));
+            $cm->set($cm->getSingleKey(), $config);
             return $transaction->discard();
         });
+        */
         return $this->menu;
     }
 }

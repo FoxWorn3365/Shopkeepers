@@ -5,13 +5,17 @@ namespace FoxWorn3365\Shopkeepers;
 use pocketmine\player\Player;
 
 class ConfigManager {
-    protected Player $player;
+    protected Player|string $player;
     public string $dir;
     protected $key;
+    protected string $got;
 
-    function __construct(Player $player, string $basedir) {
+    function __construct(Player|string $player, string $basedir) {
+        if ($player instanceof Player) {
+            $player = $player->getName();
+        }
         $this->player = $player;
-        $this->dir = $basedir . $player->getName() . '.json';
+        $this->dir = $basedir . $player . '.json';
     }
 
     public function is() : bool {
@@ -47,6 +51,7 @@ class ConfigManager {
     public function getSingleKey() : string {
         return $this->key;
     }
+
 /*
     public function add(object|array $content) : void {
         $this->update($this->get()[] = $content);
