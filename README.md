@@ -1,4 +1,4 @@
-# Shopkeepers
+# Shopkeepers - Stable version
 Add Shopkeepers to your PocketMine-MP server!
 
 ## Features
