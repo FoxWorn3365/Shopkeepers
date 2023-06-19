@@ -19,10 +19,6 @@ commands:
 permissions:
   shopkeepers.base:
     description: "Allows users to use the base command"
-    # Default state of the permission. Explanation of each value:
-    # op: only op players have this permission by default
-    # true: everyone has this permission by default
-    # false: no one has this permission by default
     default: true
   shopkeepers.shop.summon:
     description: "Allows users to summon player's shop"

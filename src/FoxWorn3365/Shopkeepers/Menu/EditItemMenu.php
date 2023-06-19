@@ -1,5 +1,23 @@
 <?php
 
+/*
+ * Shopkeepers for PocketMine-MP
+ * Add custom shopkeepers to your PocketMine-MP server!
+ * 
+ * Copyright (C) 2023-now FoxWorn3365
+ * Relased under GNU General Public License v3.0 (https://github.com/FoxWorn3365/Shopkeepers/blob/main/LICENSE)
+ * You can find the license file in the root folder of the project inside the LICENSE file!
+ * If not, see https://www.gnu.org/licenses/
+ * 
+ * Useful links:
+ * - GitHub: https://github.com/FoxWorn3365/Shopkeepers
+ * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
+ * - Author GitHub: https://github.com/FoxWorn3365
+ * 
+ * Current file: /Menu/EditItemMenu.php
+ * Description: Here is generated the menu to edit a specific trade, selected with /Menu/EditMenu.php
+ */
+
 namespace FoxWorn3365\Shopkeepers\Menu;
 
 use pocketmine\item\VanillaItems;
@@ -89,14 +107,6 @@ class EditItemMenu {
         $this->menu->setName("Editing shop {$this->config->title}");
         $this->menu->getInventory()->setItem(17, Factory::item(160, 14, "Delete the item"));
 
-        /*
-        NO MORE MONEY MUAHAHAHAHAHA
-        // Money part
-        $money = Utils::getIntItem(160, 8);
-        $money->setCustomName("§rPrice: {$object->price}$");
-        $this->menu->getInventory()->setItem(10, $money);
-        */
-
         // Buy qta increasator and decreasator
         $this->menu->getInventory()->setItem(1, Factory::item(35, 13, "+1"));
         $this->menu->getInventory()->setItem(19, Factory::item(35, 14, "-1"));
@@ -109,42 +119,10 @@ class EditItemMenu {
         $this->menu->getInventory()->setItem(10, $buyitem);
         $this->menu->getInventory()->setItem(13, $sellitem);
 
-        // Buttons mapping for actions
-        /*
-        $buttons = [
-            1 => 'buymore',
-            19 => 'buyless',
-            4 => 'sellmore',
-            22 => 'sellless',
-            17 => 'delete',
-            10 => 'changebuy',
-            13 => 'changesell'
-        ];
-        */
-
         $cm = $this->cm;
         $config = $this->config;
 
         $this->menu->setListener(function($transaction) use (&$object, $cm, $config, $index, $slot) {
-            /*
-            $object = @$cm->get()->{$cm->getSingleKey()}->items[$index];
-
-            if ($object === null) {
-                $object = new \stdClass;
-            }
-
-            if (@$object->sell === null) {
-                $object->sell = new \stdClass;
-                $object->sell->count = 1;
-            }
-
-            if (@$object->buy === null ) {
-                $object->buy = new \stdClass;
-                $object->buy->count = 1;
-            }
-            */
-            // Nel caso il bro non si aggiornasse bene perché PHP con il & è stupido allora
-            // ci toccherà importare nuovamente la configurazione qua :(
             $item = $transaction->getItemClicked();
             $action = $transaction->getAction();
 
@@ -234,79 +212,6 @@ class EditItemMenu {
             // Then, discard the transaction because we don't want to duplicate items!
             return $transaction->discard();
         });
-        /*
-            $change = "nothing";
-            if ($item->getName() == "§r+1") {
-                if ($object->count +1 > 64) {
-                    $transaction->getPlayer()->sendMessage("You can't sell more than 64 items!");
-                } else {
-                    $change = "count";
-                    $object->count++;
-                }
-            } elseif ($item->getName() == "§r-1") {
-                if ($object->count -1 <= 0) {
-                    $transaction->getPlayer()->sendMessage("You can't sell 0 items!");
-                } else {
-                    $object->count--;
-                    $change = 'count';
-                }
-            } elseif ($item->getName() == "§r-1$") {
-                if ($object->price - 1 <= 0) {
-                    $transaction->getPlayer()->sendMessage("You can't sell this item for 0$");
-                } else {
-                    $change = "price";
-                    $object->price--;
-                }
-            } elseif ($item->getName() == "§r+1$") {
-                $object->price++;
-                $change = "price";
-            } elseif ($action->getSlot() == $reservedslot && $action->getSourceItem() != null) {
-                $translator = (new TypeConverter())->getItemTranslator()->toNetworkIdQuiet($transaction->getItemClickedWith());
-                $object->id = $translator[0];
-                $object->meta = $translator[1];
-                var_dump($object);
-                var_dump("NAME:", Utils::getIntItem($object->id, $object->meta)->getName());
-                $change = "object";
-            } else {
-                $change = "nothing";
-            }
-            if ($change == "price") {
-                $money = Utils::getIntItem(160, 8);
-                $money->setCustomName("§rPrice: {$object->price}$");
-                foreach ($transaction->getTransaction()->getInventories() as $inventory) {
-                    if (!($inventory instanceof InvMenuInventory)) {
-                        continue;
-                    }
-                    $inventory->setItem(10, $money);
-                    break;
-                }
-            } elseif ($change == "object") {
-                $sellitem = $transaction->getItemClickedWith();
-                foreach ($transaction->getTransaction()->getInventories() as $inventory) {
-                    if ($inventory instanceof InvMenuInventory) {
-                        $inventory->clear($reservedslot);
-                        usleep(250000);
-                        $inventory->setItem($reservedslot, $sellitem);
-                        //var_dump($inventory->getItem($reservedslot)->getName());
-                        break;
-                    }
-                }
-            } elseif ($change == 'count') {
-                foreach ($transaction->getTransaction()->getInventories() as $inventory) {
-                    if (!($inventory instanceof InvMenuInventory)) {
-                        continue;
-                    }
-                    $item = $inventory->getItem($reservedslot);
-                    $item->setCount($object->count);
-                    $inventory->setItem($reservedslot, $item);
-                    break;
-                }
-            }
-            $config->items[$index] = $object;
-            $cm->set($cm->getSingleKey(), $config);
-            return $transaction->discard();
-        });
-        */
         return $this->menu;
     }
 }

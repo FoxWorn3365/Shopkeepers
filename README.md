@@ -1,5 +1,36 @@
 # Shopkeepers
-Shopkeepers on PMMP? Are u serious?!'!?1''1'!?!1
+Add Shopkeepers to your PocketMine-MP server!
+
+## Features
+- Configuration via in-game GUI
+- Admin shops
+- Hit prevention for shopkeepers
+- Shop inventory
+
+## Installation
+The plugin, as this is being written, is not yet on the [poggit](https://poggit.pmmp.io/) platform, so here are some options for installation:
+### Simple installation
+> Download the `Shopkeepers.phar` from the [latest relase](https://github.com/FoxWorn3365/Shopkeepers/tags) and then put it into the `plugin/` folder
+### I-do-not-trust AKA Manual installation
+> It is normal not to trust a `.phar` file in a plugin relase, so here is how to proceed with manual installation:<br>
+> Clone this repo
+```shell
+$ git clone https://github.com/FoxWorn3365/Shopkeepers
+```
+> Put this contents in `build.php`
+```php
+<?php
+$name = $argv[1];
+$dir = $argv[2];
+
+$phar = new Phar($name);
+$phar->buildFromDirectory($dir);
+```
+> And then execute this command
+```shell
+$ php build.php /path/to/pmmp/server/plugin/Shopkeepers.phar Shopkeepers/
+```
+> And then you've installed the plugin!
 
 ## Special thanks
 Thanks to [Muqsit](https://github.com/Muqsit) for the [InvMenu](https://github.com/Muqsit/InvMenu) virion who have contributed to the creation for this plugin!<br>
@@ -19,6 +50,50 @@ Here a list of all commands that you can use:
 | summon | SHOP NAME | Summon a Shopkeeper entity (as a Villager) for your Shop |
 | rename | SHOP NAME and NEW NAME | [NOT AVAILABLE] Rename a current shop |
 | list | none | Show all of your shops |
+
+## Permissions
+```yaml
+permissions:
+  shopkeepers.base:
+    description: "Allows users to use the base command"
+    default: true
+  shopkeepers.shop.summon:
+    description: "Allows users to summon player's shop"
+    default: true
+  shopkeepers.shop.create:
+    description: "Allow users to create a shop"
+    default: true
+  shopkeepers.shop.edit:
+    description: "Allow users to edit they'r shop"
+    default: true
+  shopkeepers.shop.list:
+    description: "Allow users to see a list of their shops"
+    default: true
+  shopkeepers.shop.remove:
+    description: "Allow users to despawn they'r Villager shops"
+    default: true
+  shopkeepers.shop.rename:
+    descritpion: "Allow users to rename they'r shops"
+    default: true
+  shopkeepers.shop.namevisible:
+    description: "Allow users to decide if the shopkepeer's name should be visible or no"
+    default: true
+  shopkeepers.shop.admin:
+    description: "Allows users to decide if the shopkeepers should be admin or none"
+    default: op
+  shopkeepers.shop.kill:
+    description: "Allow users to kill every shopkeepers, also of other players"
+    default: op
+  shopkeepers.shop.defaultGUI:
+    description: "Allow users to see and use the /sk command without args to open the base GUI"
+    default: true
+  shopkeepers.shop.use:
+    description: "Allow users to use a shopkeeper when they touch it"
+    default: true
+  shopkeepers.shop.allowRemoteInventoryOpen:
+    description: "Allow users to open a shopkeeper's inventory with the command /sk inventory"
+    default: op
+```
 
 ## F.A.Q.
 ### How to create an Admin shop
@@ -42,6 +117,7 @@ Everyone can contribute and take inspiration from my code, however for those who
 - Before making a pull request try the code you submitted
 - All classes having `FoxWorn3365Shopkeepers\utils` as namespace must be static and final
 - In the PR please EXPLAIN what you changed because I don't have all the time in the world to decipher unknown and unexplained codes
+- Use the used file "headers" but add a row under the `Copyright (C) 2023-now FoxWorn3365` like `Contributor(s): YouGitHubUsername` and update the file mapping (`Current file`)
 That said feel free to contribute, it's not like I'm going to eat you if you make a mistake!
 
 ## Known bugs:

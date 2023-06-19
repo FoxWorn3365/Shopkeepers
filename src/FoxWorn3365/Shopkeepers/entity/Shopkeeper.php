@@ -1,5 +1,23 @@
 <?php
 
+/*
+ * Shopkeepers for PocketMine-MP
+ * Add custom shopkeepers to your PocketMine-MP server!
+ * 
+ * Copyright (C) 2023-now FoxWorn3365
+ * Relased under GNU General Public License v3.0 (https://github.com/FoxWorn3365/Shopkeepers/blob/main/LICENSE)
+ * You can find the license file in the root folder of the project inside the LICENSE file!
+ * If not, see https://www.gnu.org/licenses/
+ * 
+ * Useful links:
+ * - GitHub: https://github.com/FoxWorn3365/Shopkeepers
+ * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
+ * - Author GitHub: https://github.com/FoxWorn3365
+ * 
+ * Current file: /entity/Shopkeeper.php
+ * Description: The plugin's custom entity, useful because of the local data saved in Shopkeeper::$shopconfig
+ */
+
 namespace FoxWorn3365\Shopkeepers\entity;
 
 use pocketmine\entity\Villager;
