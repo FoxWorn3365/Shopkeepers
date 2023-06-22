@@ -14,7 +14,7 @@
  * - Author GitHub: https://github.com/FoxWorn3365
  * 
  * Current file: /EntityManager.php
- * Description: Load and save custom entities into a simple string
+ * Description: Load and save custom entities into and from a simple string
  */
 
 namespace FoxWorn3365\Shopkeepers;
