@@ -57,7 +57,7 @@ class ConfigManager {
 
     public function set(string $key, mixed $value) : void {
         $config = $this->get();
-        $key = $this->key ?? $key;
+        //$key = $this->key ?? $key;
         $config->{$key} = $value;
         $this->update($config);
     }
@@ -69,10 +69,4 @@ class ConfigManager {
     public function getSingleKey() : string {
         return $this->key;
     }
-
-/*
-    public function add(object|array $content) : void {
-        $this->update($this->get()[] = $content);
-    }
-*/
 }

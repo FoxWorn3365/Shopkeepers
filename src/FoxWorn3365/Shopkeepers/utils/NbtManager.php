@@ -29,14 +29,14 @@ use pocketmine\item\Item;
 
 final class NbtManager {
     public static function encode(Item $item) : string {
-        return (new BigEndianNbtSerializer())->write(new TreeRoot($item->nbtSerialize(-1)));
+        return bin2hex((new BigEndianNbtSerializer())->write(new TreeRoot($item->nbtSerialize(-1))));
     }
 
     public static function decode(string $nbt) : Item {
-        return Item::nbtDeserialize((new BigEndianNbtSerializer())->read($nbt)->getTag());
+        return Item::nbtDeserialize((new BigEndianNbtSerializer())->read(hex2bin($nbt))->getTag());
     }
 
     public static function partialDecode(string $nbt) : CompoundTag {
-        return (new BigEndianNbtSerializer())->read($nbt)->getTag();
+        return (new BigEndianNbtSerializer())->read(hex2bin($nbt))->getTag();
     }
 }

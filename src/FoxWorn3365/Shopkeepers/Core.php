@@ -53,10 +53,12 @@ use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use FoxWorn3365\Shopkeepers\Menu\InfoMenu;
 use FoxWorn3365\Shopkeepers\Menu\ShopInventoryMenu;
 use FoxWorn3365\Shopkeepers\Menu\EditMenu;
+use FoxWorn3365\Shopkeepers\Menu\ListMenu;
 use FoxWorn3365\Shopkeepers\Menu\ShopInfoMenu;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
 use FoxWorn3365\Shopkeepers\shop\Manager;
 use FoxWorn3365\Shopkeepers\utils\NbtManager;
+use FoxWorn3365\Shopkeepers\utils\Utils;
 
 // Newtork Parts
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\ItemStackRequest;
@@ -72,9 +74,11 @@ class Core extends PluginBase implements Listener {
     protected object $trades;
     protected object $tradeQueue;
 
+    protected float $server = 5.0;
+
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
     protected const AUTHOR = "FoxWorn3365";
-    protected const VERSION = "0.7.0-beta";
+    protected const VERSION = "0.8.2-pre-relase";
 
     public function onLoad() : void {
         $this->menu = new \stdClass;
@@ -92,16 +96,14 @@ class Core extends PluginBase implements Listener {
         // Create the config folder if it does not exists
         @mkdir($this->getDataFolder());
 
-        // Load config if it does not exists
-        if (file_exists($this->getDataFolder() . "config.yml")) {
-            $this->menu = json_decode(file_get_contents($this->getDataFolder() . "config.yml"))->menus;
-        }
+        // Check for file integrity
+        Utils::integrityChecker($this->getDataFolder());
+
+        // Set server version
+        $this->server = (float)$this->getServer()->getApiVersion();
 
         // Register event listener
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-
-        // Cache all entities (they're only a 1kb max strings) to permit the loading for all players
-        $this->entities->cache($this->getServer());
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
@@ -113,8 +115,6 @@ class Core extends PluginBase implements Listener {
     }
 
     public function onPlayerEntityInteract(Interaction $event) : void {
-        //$menu = new CreateMenu($this->getDataFolder());
-        //$menu->create()->send($event->getPlayer());
         if (!$event->getPlayer()->hasPermission("shopkeepers.shop.use")) {
             $event->getPlayer()->sendMessage(self::NOT_PERM_MSG);
         }
@@ -125,8 +125,16 @@ class Core extends PluginBase implements Listener {
                 // Open the shopkeeper's inventory RN!
                 $cm = new ConfigManager($data->author, $this->getDataFolder());
                 $cm->setSingleKey($data->shop);
-                $menu = new ShopInventoryMenu($cm);
-                $menu->create()->send($event->getPlayer());
+                if ($cm->get()->{$data->shop}->admin) {
+                    // Admin shops don't have inventory so open the normal trade menu and runnnn
+                    $manager = new Manager($cm);
+                    $this->trades->{$event->getPlayer()->getName()} = new \stdClass;
+                    $this->trades->{$event->getPlayer()->getName()}->config = $data;
+                    $manager->send($event->getPlayer(), $entity);
+                } else {
+                    $menu = new ShopInventoryMenu($cm);
+                    $menu->create()->send($event->getPlayer());
+                }
             } else {
                 // It's a shopkeeper!
                 // BEAUTIFUL!
@@ -167,11 +175,9 @@ class Core extends PluginBase implements Listener {
             }
 
             if ($shop->is()) {
-                $list = "";
-                foreach ($shop->get() as $title => $item) {
-                    $list .= "\n- {$title}";
-                }
-                $sender->sendMessage("Your shops: {$list}");
+                // Open the list menu
+                $menu = new ListMenu($sender, $this->getDataFolder());
+                $menu->create()->send($sender);
                 return true;
             } else {
                 $sender->sendMessage("You don't have any shop(s) here!");
@@ -247,12 +253,12 @@ class Core extends PluginBase implements Listener {
             $shopdata->shop = $name;
             $villager = new Shopkeeper($pos);
             $villager->setNameTag($name);
-            $villager->setNameTagVisible($shop->get()->{$name}->namevisible);
+            $villager->setNameTagAlwaysVisible($shop->get()->{$name}->namevisible);
             $villager->setConfig($shopdata);
             $villager->spawnToAll();
             $this->entities->add($villager);
             return true;
-        } elseif ($args[0] == "remove" || $args[0] == "despawn") {
+        } elseif ($args[0] === "remove" || $args[0] === "despawn") {
             $sender->sendMessage("To remove a shopkeeper just hit it!");
             return true;
         } elseif (empty($args[0])) {
@@ -285,12 +291,6 @@ class Core extends PluginBase implements Listener {
         $itemglobal = null;
         $inventoryInsideConfig = null;
         if ($event->getPacket() instanceof ItemStackRequestPacket) {
-            /*
-            Debugging things
-            print_r($event->getPacket());
-            var_dump($event->getOrigin()->getPlayer()->getCurrentWindow());
-            print_r($event->getOrigin()->getPlayer()->getName());
-            */
             $inventory = $event->getOrigin()->getPlayer()->getInventory();
 
             foreach ($event->getPacket()->getRequests() as $request) {
@@ -315,8 +315,13 @@ class Core extends PluginBase implements Listener {
                                                 $event->getOrigin()->getPlayer()->sendMessage("§cYour inventory is full!");
                                                 return;
                                             } else {
-                                                $translator = (new TypeConverter())->getItemTranslator();
-                                                $item = $translator->fromNetworkId($result->getId(), $result->getMeta(), $result->getBlockRuntimeId());
+                                                if ($this->server < 5) {
+                                                    $translator = new TypeConverter();
+                                                    $item = $translator->netItemStackToCore($result);
+                                                } else {
+                                                    $translator = (new TypeConverter())->getItemTranslator();
+                                                    $item = $translator->fromNetworkId($result->getId(), $result->getMeta(), $result->getBlockRuntimeId());
+                                                }
                                                 $item->setCount($result->getCount());
                                                 // Before set this we need to check and update the villager's inventory
                                                 $total = $result->getCount();
