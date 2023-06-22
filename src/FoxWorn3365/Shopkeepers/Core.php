@@ -92,10 +92,8 @@ class Core extends PluginBase implements Listener {
         // Create the config folder if it does not exists
         @mkdir($this->getDataFolder());
 
-        // Load config if it does not exists
-        if (file_exists($this->getDataFolder() . "config.yml")) {
-            $this->menu = json_decode(file_get_contents($this->getDataFolder() . "config.yml"))->menus;
-        }
+        // Check for file integrity
+        Utils::integrityChecker($this->getDataFolder());
 
         // Register event listener
         $this->getServer()->getPluginManager()->registerEvents($this, $this);

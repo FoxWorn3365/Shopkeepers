@@ -43,4 +43,30 @@ class Utils {
 			return VanillaItems::FLINT_AND_STEEL();
 		}
     }
+
+	static function errorLogger(string $data_dir, string $severity, string $reason) : void {
+		if (file_exists("{$data_dir}error.txt")) {
+			$stream = file_get_contents("{$data_dir}error.txt");
+		} else {
+			$stream = "";
+		}
+		$stream .= "\n" . date("[d/m/Y - H:i:s]") . "[#{$severity}]: {$reason}";
+		file_put_contents("{$data_dir}error.txt", $stream);
+	}
+
+	static function integrityChecker(string $data_dir) : void {
+		foreach (glob("{$data_dir}*.json") as $file) {
+			$content = file_get_contents($file);
+			if (empty($content) || $content == " ") {
+				self::errorLogger($data_dir, "ERROR", "Empty or invalid file in {$file}!");
+				// Remove the dangerous file
+				@unlink($file);
+			} elseif (json_decode($content) === false || json_decode($content) === null) {
+				self::errorLogger($data_dir, "ERROR", "Invalid JSON in file {$file}!");
+				// Remove the dangerous file
+				@unlink($file);
+			}
+		}
+		// Perfect, ready to go!
+	}
 }
