@@ -370,7 +370,6 @@ class Core extends PluginBase implements Listener {
                         } elseif ($action instanceof PlaceStackRequestAction) {
                             if (!$ic->slot && $ic->crafting && $ic->cconsume && $cm instanceof ConfigManager) {
                                 $ic->slot = true;
-                                echo "PRTA\n";
                                 $dest = $action->getDestination()->getSlotId();
                                 // Put cctr to slot
                                 if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null) {
@@ -378,7 +377,7 @@ class Core extends PluginBase implements Listener {
                                     $quota = $this->trades->{$event->getOrigin()->getPlayer()->getName()}->quota;
                                     $referredItem = clone $data->item;
                                     if ($quota <= 0) {
-                                        echo "ERROR ON QUOTA";
+                                        // Error on qta
                                         return;
                                     }
                                     if ($data->count > 1) {
@@ -442,7 +441,6 @@ class Core extends PluginBase implements Listener {
                                 }
                             } else {
                                 if (!$ic->specialstack) {
-                                    echo "SPTA\n";
                                     $ic->specialstack = true;
                                     if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null && $action->getSource()->getContainerId() != 47) {
                                         // So we need to get the item from the slot

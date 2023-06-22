@@ -1,4 +1,4 @@
-# Shopkeepers
+# Shopkeepers - BETA v0.7.1
 Add Shopkeepers to your PocketMine-MP server!
 
 ## Features
