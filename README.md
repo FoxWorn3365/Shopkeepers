@@ -16,7 +16,7 @@
 </p>
 
 ---
-<h1 align="center">Shopkeepers for PocketMine-MP 4</h1>
+<h1 align="center">Shopkeepers for PocketMine-MP 5</h1>
 <br>
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
@@ -35,8 +35,8 @@
 ## Compatibility
 **Shopkeepers** is made to be multi-version, in fact I announce with great joy that the plugin is available for both PocketMine-MP 5 and PocketMine-MP 4!
 > **Warning**<br>
-> This is the branch for **PocketMine-MP 4** only!<br>
-> The branch for PocketMine-MP **5** can be found [here](https://github.com/FoxWorn3365/Shopkeepers)
+> The Shopkeepers version for PocketMine-MP 4 is available exclusively here on GitHub since InvMenu has versions that are not compatible with each other!
+> The branch can be found [here](https://github.com/FoxWorn3365/Shopkeepers/tree/pmmp4)
 
 ## Commands
 The base command is `/shopkeepers` but you can also use `/sk`, `/skeepers` and `/shopk` as aliases.

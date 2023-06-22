@@ -12,6 +12,7 @@ use muqsit\invmenu\session\PlayerSession;
 use pocketmine\block\inventory\BlockInventory;
 use pocketmine\inventory\Inventory;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
@@ -24,7 +25,7 @@ final class PlayerNetwork{
 	public const DELAY_TYPE_ANIMATION_WAIT = 0;
 	public const DELAY_TYPE_OPERATION = 1;
 
-	/** @var Closure(int, Inventory) : (list<\pocketmine\network\mcpe\protocol\ClientboundPacket>|null) */
+	/** @var Closure(int, Inventory) : (list<ClientboundPacket>|null) */
 	private Closure $container_open_callback;
 
 	private ?NetworkStackLatencyEntry $current = null;
@@ -37,8 +38,8 @@ final class PlayerNetwork{
 	private array $entry_types = [];
 
 	public function __construct(
-		private NetworkSession $network_session,
-		private PlayerNetworkHandler $handler
+		readonly private NetworkSession $network_session,
+		readonly private PlayerNetworkHandler $handler
 	){
 		$this->queue = new SplQueue();
 		$this->nullifyContainerOpenCallback();
