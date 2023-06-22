@@ -11,13 +11,16 @@
     </div>
     <div align="center" style="margin-top: 15px">
         <strong>Created with ❤️ by <a href='https://github.com/FoxWorn3365'>FoxWorn3365</a></strong>
+        <br><br>
     </div>
 </p>
+
+---
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
 ## Introduction video
-<iframe width="560" height="315" src="https://www.youtube.com/embed/sustUWTgmMo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<video src='test.mp4'></video>
 
 ## Features
 - Players can create theyr own Shopkeepers and manage it
