@@ -57,6 +57,7 @@ use FoxWorn3365\Shopkeepers\Menu\ShopInfoMenu;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
 use FoxWorn3365\Shopkeepers\shop\Manager;
 use FoxWorn3365\Shopkeepers\utils\NbtManager;
+use FoxWorn3365\Shopkeepers\utils\Utils;
 
 // Newtork Parts
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\ItemStackRequest;
