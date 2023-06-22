@@ -57,7 +57,7 @@ class ConfigManager {
 
     public function set(string $key, mixed $value) : void {
         $config = $this->get();
-        $key = $this->key ?? $key;
+        //$key = $this->key ?? $key;
         $config->{$key} = $value;
         $this->update($config);
     }

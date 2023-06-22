@@ -73,6 +73,8 @@ class Core extends PluginBase implements Listener {
     protected object $trades;
     protected object $tradeQueue;
 
+    protected float $server = 5.0;
+
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
     protected const AUTHOR = "FoxWorn3365";
     protected const VERSION = "0.7.0-beta";
@@ -95,6 +97,17 @@ class Core extends PluginBase implements Listener {
 
         // Check for file integrity
         Utils::integrityChecker($this->getDataFolder());
+
+        // Set server version
+        $this->server = (float)$this->getServer()->getApiVersion();
+
+        // Now do a function check
+        if (!function_exists('zlib_encode') && $this->server < 5) {
+            // Unload the plugin: we cant
+            $this->getLogger()->critical("Function 'zlib_encode' not found when is mandatory for PMMP < 5!\nYour version: " . (float)$this->getServer()->getApiVersion());
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return;
+        }
 
         // Register event listener
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -124,8 +137,13 @@ class Core extends PluginBase implements Listener {
                 // Open the shopkeeper's inventory RN!
                 $cm = new ConfigManager($data->author, $this->getDataFolder());
                 $cm->setSingleKey($data->shop);
-                $menu = new ShopInventoryMenu($cm);
-                $menu->create()->send($event->getPlayer());
+                if ($cm->get()->{$data->shop}->admin) {
+                    $manager = new Manager($cm);
+                    $manager->send($event->getPlayer(), $entity);
+                } else {
+                    $menu = new ShopInventoryMenu($cm);
+                    $menu->create()->send($event->getPlayer());
+                }
             } else {
                 // It's a shopkeeper!
                 // BEAUTIFUL!
@@ -284,12 +302,6 @@ class Core extends PluginBase implements Listener {
         $itemglobal = null;
         $inventoryInsideConfig = null;
         if ($event->getPacket() instanceof ItemStackRequestPacket) {
-            /*
-            Debugging things
-            print_r($event->getPacket());
-            var_dump($event->getOrigin()->getPlayer()->getCurrentWindow());
-            print_r($event->getOrigin()->getPlayer()->getName());
-            */
             $inventory = $event->getOrigin()->getPlayer()->getInventory();
 
             foreach ($event->getPacket()->getRequests() as $request) {
@@ -314,8 +326,13 @@ class Core extends PluginBase implements Listener {
                                                 $event->getOrigin()->getPlayer()->sendMessage("§cYour inventory is full!");
                                                 return;
                                             } else {
-                                                $translator = (new TypeConverter())->getItemTranslator();
-                                                $item = $translator->fromNetworkId($result->getId(), $result->getMeta(), $result->getBlockRuntimeId());
+                                                if ($this->server < 5) {
+                                                    $translator = new TypeConverter();
+                                                    $item = $translator->netItemStackToCore($result);
+                                                } else {
+                                                    $translator = (new TypeConverter())->getItemTranslator();
+                                                    $item = $translator->fromNetworkId($result->getId(), $result->getMeta(), $result->getBlockRuntimeId());
+                                                }
                                                 $item->setCount($result->getCount());
                                                 // Before set this we need to check and update the villager's inventory
                                                 $total = $result->getCount();
