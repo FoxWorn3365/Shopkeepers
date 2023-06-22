@@ -3,6 +3,8 @@ Add Shopkeepers to your PocketMine-MP server!
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
+**Problems? Please open an Issue on GitHub!**
+
 ## Features
 - Configuration via in-game GUI
 - Admin shops
@@ -120,7 +122,7 @@ Although I love to receive messages from people who are excited about something 
 Everyone can contribute and take inspiration from my code, however for those who would like to contribute here are some guidelines:
 - The code you add, please comment on it
 - Before making a pull request try the code you submitted
-- All classes having `FoxWorn3365Shopkeepers\utils` as namespace must be static and final
+- All classes having `FoxWorn3365\Shopkeepers\utils` as namespace must be static and final
 - In the PR please EXPLAIN what you changed because I don't have all the time in the world to decipher unknown and unexplained codes
 - Use the used file "headers" but add a row under the `Copyright (C) 2023-now FoxWorn3365` like `Contributor(s): YouGitHubUsername` and update the file mapping (`Current file`)
 That said feel free to contribute, it's not like I'm going to eat you if you make a mistake!
