@@ -1,52 +1,45 @@
-# Shopkeepers - BETA v0.7.1
-Add Shopkeepers to your PocketMine-MP server!
+<p align="center">
+    <img src='https://raw.githubusercontent.com/FoxWorn3365/Shopkeepers/pmmp4-dev/plugin-banner.png'>
+    <strong>Add Shopkeepers to your PocketMine-MP world! Allow the creation of simple barter stores between players or create adminshops!</strong>
+    <div align="center">
+        <a href="https://poggit.pmmp.io/p/Shopkeepers"><img src="https://poggit.pmmp.io/shield.state/Shopkeepers"></a>
+        <a href="https://poggit.pmmp.io/p/Shopkeepers"><img src="https://poggit.pmmp.io/shield.api/Shopkeepers"></a>
+    </div>
+    <div align="center">
+        <a href="https://poggit.pmmp.io/p/Shopkeepers"><img src="https://poggit.pmmp.io/shield.dl.total/Shopkeepers"></a>
+        <a href="https://poggit.pmmp.io/p/Shopkeepers"><img src="https://poggit.pmmp.io/shield.dl/Shopkeepers"></a>
+    </div>
+    <div align="center" style="margin-top: 15px">
+        <strong>Created with ❤️ by <a href='https://github.com/FoxWorn3365'>FoxWorn3365</a></strong>
+        <br><br>
+    </div>
+</p>
+
+---
+<h1 align="center">Shopkeepers for PocketMine-MP 4</h1>
+<br>
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
-**Problems? Please open an Issue on GitHub!**
+## Introduction video
+<a href='https://www.youtube.com/watch?v=sustUWTgmMo'>Watch the video on YouTube</a>
 
 ## Features
-- Configuration via in-game GUI
-- Admin shops
+- Players can create theyr own Shopkeepers and manage it
+- Admin Shopkeepers
+- Vanilla trade page
+- Shopkeeper inventory for non-admin Shopkeepers
 - Hit prevention for shopkeepers
-- Shop inventory
+- Easy configuration with in-game GUI
 
-## Installation
-The plugin, as this is being written, is not yet on the [poggit](https://poggit.pmmp.io/) platform, so here are some options for installation:
-### Simple installation
-> Download the `Shopkeepers.phar` from the [latest relase](https://github.com/FoxWorn3365/Shopkeepers/tags) and then put it into the `plugin/` folder
-### I-do-not-trust AKA Manual installation
-> It is normal not to trust a `.phar` file in a plugin relase, so here is how to proceed with manual installation:<br>
-> Clone this repo
-```shell
-$ git clone https://github.com/FoxWorn3365/Shopkeepers
-```
+## Compatibility
+**Shopkeepers** is made to be multi-version, in fact I announce with great joy that the plugin is available for both PocketMine-MP 5 and PocketMine-MP 4!
 > **Warning**<br>
-> Before building the plugin you must add the [InvMenu](https://github.com/Muqsit/InvMenu) source to `src/`!
-
-> Put this contents in `build.php`
-```php
-<?php
-$name = $argv[1];
-$dir = $argv[2];
-
-$phar = new Phar($name);
-$phar->buildFromDirectory($dir);
-```
-> And then execute this command
-```shell
-$ php build.php /path/to/pmmp/server/plugin/Shopkeepers.phar Shopkeepers/
-```
-> And then you've installed the plugin!
-
-## Special thanks
-Thanks to [Muqsit](https://github.com/Muqsit) for the [InvMenu](https://github.com/Muqsit/InvMenu) virion who have contributed to the creation for this plugin!<br>
-Also [this plugin](https://github.com/FrozenArea/TradeAPI) helped me!
-
-## [Demostration video (YouTube)](https://youtu.be/sustUWTgmMo)
+> This is the branch for **PocketMine-MP 4** only!<br>
+> The branch for PocketMine-MP **5** can be found [here](https://github.com/FoxWorn3365/Shopkeepers)
 
 ## Commands
-The base command is `/shopkeepers` but you can also use `/sk`, `/skeepers` and `/shopk` as alias.
+The base command is `/shopkeepers` but you can also use `/sk`, `/skeepers` and `/shopk` as aliases.
 Here a list of all commands that you can use:
 | Command | Args | Description |
 | --- | --- | --- |
@@ -57,6 +50,95 @@ Here a list of all commands that you can use:
 | summon | SHOP NAME | Summon a Shopkeeper entity (as a Villager) for your Shop |
 | rename | SHOP NAME and NEW NAME | [NOT AVAILABLE] Rename a current shop |
 | list | none | Show all of your shops |
+
+## F.A.Q.
+### How to create an Admin shop
+There is not really an Admin shop but you can activate this function by using the command `/sk info <SHOP NAME>` and then clicking on the Blaze Powder and then clicking on the red wool block that has "Admin shop" as its name
+
+### How to see a Shopkeeper's inventory
+There are two ways:
+- Use the command `/sk info <SHOP NAME>` and then click on the chest at the center of the GUI
+- Click on the Shopkeeper (Villager) entity
+
+### I want to access to the Shopkeeper's trade page but if i click the entity i access the inventory!
+Easy: shift and click on the Shopkeeper
+
+### How to despawn a Shopkeeper
+More easy: just hit it, it will die in only one hit!
+
+## Bug reporting
+Reporting bugs ~~to developers~~ to the developer😢 is very important to ensure the stability of the plugin, so in order to better track and manage all reports it is **incredibly necessary** that they are reported via [GitHub Issues](https://github.com/FoxWorn3365/Shopkeepers/issues).<br>
+Here is what to include in the reporting to make it perfect:
+1. The **complete** crash error
+> If it is not complete how do we know how it all happened?
+2. All files from the `plugin_data/Shopkeepers` folder
+> This way we can compare the error with those files to find a possible transcription error
+3. The plugin's version
+> It changes a lot from version to version, and this would help us a lot to understand where to look for
+4. (OPTIONAL) The plugin download source
+> Knowing where you downloaded the plugin from might help, always better to know some information
+5. (OPTIONAL) The `Shopkeepers.phar`
+> "Last wade," in case we can analyze the source
+
+## Contribution guide
+Any contribution is greatly appreciated because you help me to lighten my workload, so here are some small guidelines to follow when you want to contribute:
+- Clear code
+> I don't want to see things like this:
+```php
+class Fox {
+    protected $fox;  // WHAT'S THE TYPE?????'?'Q'2'wqiadw sdfbuhwhwrf jhs
+
+    function create($int, $bruh) { $bruh = 10-$int+$bruh; // AAAAAAAAAA. IT'S A PUBLIC, PRIVATE OR PROTECTED FUNCTION?!?!??!?
+    return $bruh;                                       // AND WHAT'S THE RETURN TYPE???? AND WHY THE CODE IS IN THE FIRST LINE????????
+    }
+}
+```
+- Update the "headers" of the file correctly
+> They allow new contributors to understand what the file is for without having them parse 250 lines, so update them with the true purpose of the file!
+```php
+// CORRECT: 
+/*
+ * Shopkeepers for PocketMine-MP
+ * Add custom shopkeepers to your PocketMine-MP server!
+ * 
+ * Copyright (C) 2023-now FoxWorn3365
+ * Relased under GNU General Public License v3.0 (https://github.com/FoxWorn3365/Shopkeepers/blob/main/LICENSE)
+ * You can find the license file in the root folder of the project inside the LICENSE file!
+ * If not, see https://www.gnu.org/licenses/
+ * 
+ * Useful links:
+ * - GitHub: https://github.com/FoxWorn3365/Shopkeepers
+ * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
+ * - Author GitHub: https://github.com/FoxWorn3365
+ * 
+ * Current file: /EntityManager.php
+ * Description: Load and save custom entities into and from a simple string
+ */
+
+
+ // WRONG:
+ /*
+ * Shopkeepers for PocketMine-MP
+ * Add custom shopkeepers to your PocketMine-MP server!
+ * 
+ * Copyright (C) 2023-now FoxWorn3365
+ * Relased under GNU General Public License v3.0 (https://github.com/FoxWorn3365/Shopkeepers/blob/main/LICENSE)
+ * You can find the license file in the root folder of the project inside the LICENSE file!
+ * If not, see https://www.gnu.org/licenses/
+ * 
+ * Useful links:
+ * - GitHub: https://github.com/FoxWorn3365/Shopkeepers
+ * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
+ * - Author GitHub: https://github.com/FoxWorn3365
+ * 
+ * Current file: /EntityManager.php
+ * Description: Idk make entites ez
+ */
+```
+- `utils` is reserved for Static functions and final classes
+> All functions in `utils` must have all static methods and all static classes must be in that directory and namespace
+- Please __DESCRIBE__ your changes in the pull request!
+> I want to understand it
 
 ## Permissions
 ```yaml
@@ -102,41 +184,25 @@ permissions:
     default: op
 ```
 
-## F.A.Q.
-### How to create an Admin shop
-There is not really an Admin shop but you can activate this function by using the command `/sk info <SHOP NAME>` and then clicking on the Blaze Powder and then clicking on the red wool block that has "Admin shop" as its name
-
-### How to see a Shopkeeper's inventory
-There are two ways:
-- Use the command `/sk info <SHOP NAME>` and then click on the chest at the center of the GUI
-- Click on the Shopkeeper (Villager) entity
-
-### I want to access to the Shopkeeper's trade page but if i click the entity i access the inventory!
-Easy: shift and click on the Shopkeeper
-
-
-## Bug reporting
-Although I love to receive messages from people who are excited about something I have created it would be better if **any bugs or problems you find are reposted in the issues of this repository** so that everything is more orderly and accessible!
-
-## Contributing
-Everyone can contribute and take inspiration from my code, however for those who would like to contribute here are some guidelines:
-- The code you add, please comment on it
-- Before making a pull request try the code you submitted
-- All classes having `FoxWorn3365\Shopkeepers\utils` as namespace must be static and final
-- In the PR please EXPLAIN what you changed because I don't have all the time in the world to decipher unknown and unexplained codes
-- Use the used file "headers" but add a row under the `Copyright (C) 2023-now FoxWorn3365` like `Contributor(s): YouGitHubUsername` and update the file mapping (`Current file`)
-That said feel free to contribute, it's not like I'm going to eat you if you make a mistake!
-
-## Known bugs:
-- When you trade your inventory on the trade page it doesn't update correctly but as soon as you close the page it all sorts out correctly, so it's not urgent.
-
-## Objects
-**Shopkeepers**, to be as configurable and manageable as possible saves IRT (In-Real-Time) player configurations in a .json file located in its PocketMine-MP plugins folder (`/path/to/server/plugin_data/`) and these are the objects that are serialized and then saved:
-### Shop object
-The main object, if a player have one or more shop will have also a shop object in his .json.
-> **Note**<br>
-> The Shop object is in an object array and have the title as key!
-
+## Developers: shop object
+The plugin needs to save store data, and unlike other plugins, it uses .json files so they are more accessible to server owners, so here is the structure.<br>
+As a reminder, the plugin saves each player's data in separate files, so there will be a `PlayerName.json` for each player that creates a shop.<br>
+Now, let's see the object:
+```json
+{
+    "author":"<PlayerNAME>",
+    "admin":false,
+    "title":"<ShopNAME>",
+    "namevisible":false,
+    "inventory":[],
+    "items":[
+        {
+            "buy":nbtSerializedItem,
+            "sell":nbtSerializedItem
+        }
+    ]
+}
+```
 | Name | Type | Description |
 | --- | --- | --- |
 | author | string | The username of the shop author |
@@ -146,31 +212,9 @@ The main object, if a player have one or more shop will have also a shop object 
 | inventory | array | The inventory of the shop |
 | items | array | A list of all recepies (max 9) |
 
-```json
-{
-    "author":"[PlayerName]",
-    "admin":false,
-    "title":"[ShopName]",
-    "namevisible":false,
-    "inventory":[],
-    "items":[
-        itemObjects
-    ]
-}
-```
-
-### Item Object
-How we save items to sell and buy.
-```json
-{
-    "sell":nbtSerializedItemString,
-    "buy":nbtSerializedItemString
-}
-```
-
-### serializedItemString
-It is the object string as NBT.
-Ez.
+## Special thanks
+Thanks to [Muqsit](https://github.com/Muqsit) for the [InvMenu](https://github.com/Muqsit/InvMenu) virion who have contributed to the creation for this plugin!<br>
+Also [this plugin](https://github.com/FrozenArea/TradeAPI) helped me!
 
 ## Roadmap
 - [x] Update the item object because now it's the old one
@@ -181,3 +225,10 @@ Ez.
 - [x] Player shop
 - [x] Shopkeeper's inventory updating when players buy
 - [x] Shopkeeper deny a trade if the inventory is without the item
+- [ ] Online shopkeeper editor
+- [ ] Online shopkeeper shop (yes, you will be able to make shopping from your phone on the subway!)
+
+## Contacts
+You can contact me via:
+- Discord: `@foxworn`
+- Email: `foxworn3365@gmail.com`

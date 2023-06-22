@@ -1,6 +1,7 @@
 name: Shopkeepers
-version: 0.7.0
-api: 5.0.0
+version: 0.8.2
+api: 4.0.0
+
 main: FoxWorn3365\Shopkeepers\Core
 author: FoxWorn3365
 website: https://github.com/FoxWorn3365/Shopkeepers
