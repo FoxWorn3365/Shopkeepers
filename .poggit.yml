@@ -1,5 +1,6 @@
 branches:
-- stable
+- main
+pulls: true
 projects:
   Shopkeepers:
     path: ""

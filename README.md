@@ -1,6 +1,8 @@
 # Shopkeepers - BETA v0.7.1
 Add Shopkeepers to your PocketMine-MP server!
 
+**⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
+
 ## Features
 - Configuration via in-game GUI
 - Admin shops
@@ -17,6 +19,9 @@ The plugin, as this is being written, is not yet on the [poggit](https://poggit.
 ```shell
 $ git clone https://github.com/FoxWorn3365/Shopkeepers
 ```
+> **Warning**<br>
+> Before building the plugin you must add the [InvMenu](https://github.com/Muqsit/InvMenu) source to `src/`!
+
 > Put this contents in `build.php`
 ```php
 <?php
