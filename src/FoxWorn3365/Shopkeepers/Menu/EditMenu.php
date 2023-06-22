@@ -61,7 +61,12 @@ class EditMenu {
             'buy' => null
         ];
         for ($a = 0; $a < 9; $a++) {
-            $item = @$this->config->items[$a];
+            if (gettype($this->config->items) !== 'array') {
+                $item = null;
+            } else {
+                $item = @$this->config->items[$a];
+            }
+
             if ($item === null) {
                 $item = (object)$defaultconfig->sell;
             } else {

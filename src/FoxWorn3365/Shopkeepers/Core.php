@@ -53,6 +53,7 @@ use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use FoxWorn3365\Shopkeepers\Menu\InfoMenu;
 use FoxWorn3365\Shopkeepers\Menu\ShopInventoryMenu;
 use FoxWorn3365\Shopkeepers\Menu\EditMenu;
+use FoxWorn3365\Shopkeepers\Menu\ListMenu;
 use FoxWorn3365\Shopkeepers\Menu\ShopInfoMenu;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
 use FoxWorn3365\Shopkeepers\shop\Manager;
@@ -77,7 +78,7 @@ class Core extends PluginBase implements Listener {
 
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
     protected const AUTHOR = "FoxWorn3365";
-    protected const VERSION = "0.7.0-beta";
+    protected const VERSION = "0.8.2-pre-relase";
 
     public function onLoad() : void {
         $this->menu = new \stdClass;
@@ -101,19 +102,8 @@ class Core extends PluginBase implements Listener {
         // Set server version
         $this->server = (float)$this->getServer()->getApiVersion();
 
-        // Now do a function check
-        if (!function_exists('zlib_encode') && $this->server < 5) {
-            // Unload the plugin: we cant
-            $this->getLogger()->critical("Function 'zlib_encode' not found when is mandatory for PMMP < 5!\nYour version: " . (float)$this->getServer()->getApiVersion());
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-            return;
-        }
-
         // Register event listener
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-
-        // Cache all entities (they're only a 1kb max strings) to permit the loading for all players
-        $this->entities->cache($this->getServer());
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
@@ -125,8 +115,6 @@ class Core extends PluginBase implements Listener {
     }
 
     public function onPlayerEntityInteract(Interaction $event) : void {
-        //$menu = new CreateMenu($this->getDataFolder());
-        //$menu->create()->send($event->getPlayer());
         if (!$event->getPlayer()->hasPermission("shopkeepers.shop.use")) {
             $event->getPlayer()->sendMessage(self::NOT_PERM_MSG);
         }
@@ -138,7 +126,10 @@ class Core extends PluginBase implements Listener {
                 $cm = new ConfigManager($data->author, $this->getDataFolder());
                 $cm->setSingleKey($data->shop);
                 if ($cm->get()->{$data->shop}->admin) {
+                    // Admin shops don't have inventory so open the normal trade menu and runnnn
                     $manager = new Manager($cm);
+                    $this->trades->{$event->getPlayer()->getName()} = new \stdClass;
+                    $this->trades->{$event->getPlayer()->getName()}->config = $data;
                     $manager->send($event->getPlayer(), $entity);
                 } else {
                     $menu = new ShopInventoryMenu($cm);
@@ -184,11 +175,9 @@ class Core extends PluginBase implements Listener {
             }
 
             if ($shop->is()) {
-                $list = "";
-                foreach ($shop->get() as $title => $item) {
-                    $list .= "\n- {$title}";
-                }
-                $sender->sendMessage("Your shops: {$list}");
+                // Open the list menu
+                $menu = new ListMenu($sender, $this->getDataFolder());
+                $menu->create()->send($sender);
                 return true;
             } else {
                 $sender->sendMessage("You don't have any shop(s) here!");
@@ -264,12 +253,12 @@ class Core extends PluginBase implements Listener {
             $shopdata->shop = $name;
             $villager = new Shopkeeper($pos);
             $villager->setNameTag($name);
-            $villager->setNameTagVisible($shop->get()->{$name}->namevisible);
+            $villager->setNameTagAlwaysVisible($shop->get()->{$name}->namevisible);
             $villager->setConfig($shopdata);
             $villager->spawnToAll();
             $this->entities->add($villager);
             return true;
-        } elseif ($args[0] == "remove" || $args[0] == "despawn") {
+        } elseif ($args[0] === "remove" || $args[0] === "despawn") {
             $sender->sendMessage("To remove a shopkeeper just hit it!");
             return true;
         } elseif (empty($args[0])) {

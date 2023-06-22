@@ -69,10 +69,4 @@ class ConfigManager {
     public function getSingleKey() : string {
         return $this->key;
     }
-
-/*
-    public function add(object|array $content) : void {
-        $this->update($this->get()[] = $content);
-    }
-*/
 }

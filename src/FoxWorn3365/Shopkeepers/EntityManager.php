@@ -49,7 +49,8 @@ class EntityManager {
 
     public function add(Shopkeeper $shop) : void {
         // x, y, yw, z, pitch, world, (base64)data
-        $this->elements[] = "{$shop->getLocation()->getX()},{$shop->getLocation()->getY()},{$shop->getLocation()->getYaw()},{$shop->getLocation()->getZ()},{$shop->getLocation()->getPitch()},{$shop->getWorld()->getId()}," . base64_encode(json_encode($shop->getConfig()));
+        //$this->elements[] = "{$shop->getLocation()->getX()},{$shop->getLocation()->getY()},{$shop->getLocation()->getYaw()},{$shop->getLocation()->getZ()},{$shop->getLocation()->getPitch()},{$shop->getWorld()->getId()}," . base64_encode(json_encode($shop->getConfig()));
+        $this->elements[] = $this->generateEntityHash($shop);
         $this->update();
     }
 
@@ -69,7 +70,22 @@ class EntityManager {
     }
 
     public function generateEntityHash(Shopkeeper $shop) : string {
-        return "{$shop->getLocation()->getX()},{$shop->getLocation()->getY()},{$shop->getLocation()->getYaw()},{$shop->getLocation()->getZ()},{$shop->getLocation()->getPitch()},{$shop->getWorld()->getId()}," . base64_encode(json_encode($shop->getConfig()));
+        // GitHub user: "Use object plz"
+        // Me: okok i'll do it    AND NOW ITZ TIMW!
+        return base64_encode(json_encode([
+            'x' => $shop->getLocation()->getX(),
+            'y' => $shop->getLocation()->getY(),
+            'yaw' => $shop->getLocation()->getYaw(),
+            'z' => $shop->getLocation()->getZ(),
+            'pitch' => $shop->getLocation()->getPitch(),
+            'world' => $shop->getWorld()->getId(),
+            'config' => base64_encode(json_encode($shop->getConfig())),
+            'nametag' => base64_encode(json_encode([
+                'visible' => $shop->isNameTagAlwaysVisible(),
+                'tag' => $shop->getNameTag()
+            ]))
+        ]));
+        // Old entity string: return "{$shop->getLocation()->getX()},{$shop->getLocation()->getY()},{$shop->getLocation()->getYaw()},{$shop->getLocation()->getZ()},{$shop->getLocation()->getPitch()},{$shop->getWorld()->getId()}," . base64_encode(json_encode($shop->getConfig()));
     }
 
     public function remove(string $hash) : void {
@@ -88,23 +104,26 @@ class EntityManager {
 
     public function loadPlayer(Player $player) : void {
         $server = $player->getServer();
-        foreach ($this->elements as $data) {
-            $data = explode(",", $data);
-            $location = new Location($data[0], $data[1], $data[3], $server->getWorldManager()->getWorld($data[5]), $data[2], $data[4]);
-            $shopkeeper = new Shopkeeper($location);
-            $shopkeeper->setConfig(json_decode(base64_decode($data[6])));
-            $shopkeeper->spawnTo($player);
+        foreach ($this->elements as $shop) {
+            self::createEntity($shop, $player->getServer())->spawnTo($player);
         }
     }
 
-    public function cache($server) : void {
+    protected static function createEntity(string $rawdata, Server $server) : Shopkeeper {
+        $data = (object)json_decode(base64_decode($rawdata));
+        $location = new Location($data->x, $data->y, $data->z, $server->getWorldManager()->getWorld($data->world), $data->yaw, $data->pitch);
+        $entity = new Shopkeeper($location);
+        $entity->setConfig(json_decode(base64_decode($data->config)));
+        $tags = json_decode(base64_decode($data->nametag));
+        $entity->setNameTag($tags->tag);
+        $entity->setNameTagAlwaysVisible($tags->visible);
+        return $entity;
+    }
+
+    public function cache(Server $server) : void {
         $this->retrive();
         foreach ($this->elements as $data) {
-            $data = explode(",", $data);
-            $location = new Location($data[0], $data[1], $data[3], $server->getWorldManager()->getWorld($data[5]), $data[2], $data[4]);
-            $shopkeeper = new Shopkeeper($location);
-            $shopkeeper->setConfig(json_decode(base64_decode($data[6])));
-            $this->entities[] = $shopkeeper;
+            $this->entities[] = self::createEntity($data, $server);
         }
     }
 }
