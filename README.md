@@ -16,7 +16,7 @@
 </p>
 
 ---
-<span style='font-size: 40px; align: center'><strong>Shopkeepers for PocketMine-MP 4</strong></span>
+<h1 align="center">Shopkeepers for PocketMine-MP 4</h1>
 <br>
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
