@@ -43,6 +43,7 @@ use pocketmine\event\player\PlayerEntityInteractEvent as Interaction;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\event\entity\EntitySpawnEvent;
 
 // Packets
 use pocketmine\network\mcpe\protocol\ActorEventPacket as EntityEventPacket;
@@ -77,8 +78,8 @@ class Core extends PluginBase implements Listener {
     protected float $server = 5.0;
 
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
-    protected const AUTHOR = "FoxWorn3365";
-    protected const VERSION = "0.8.2-pre-relase";
+    public const AUTHOR = "FoxWorn3365";
+    public const VERSION = "0.9-pre";
 
     public function onLoad() : void {
         $this->menu = new \stdClass;
@@ -122,19 +123,11 @@ class Core extends PluginBase implements Listener {
         if ($entity instanceof Shopkeeper) {
             $data = $entity->getConfig();
             if ($data->author === $event->getPlayer()->getName() && !$event->getPlayer()->isSneaking()) {
-                // Open the shopkeeper's inventory RN!
+                // Open the shopkeeper's ~~inventory~~ info page RN!
                 $cm = new ConfigManager($data->author, $this->getDataFolder());
                 $cm->setSingleKey($data->shop);
-                if ($cm->get()->{$data->shop}->admin) {
-                    // Admin shops don't have inventory so open the normal trade menu and runnnn
-                    $manager = new Manager($cm);
-                    $this->trades->{$event->getPlayer()->getName()} = new \stdClass;
-                    $this->trades->{$event->getPlayer()->getName()}->config = $data;
-                    $manager->send($event->getPlayer(), $entity);
-                } else {
-                    $menu = new ShopInventoryMenu($cm);
-                    $menu->create()->send($event->getPlayer());
-                }
+                $menu = new ShopInfoMenu($cm);
+                $menu->create()->send($event->getPlayer());
             } else {
                 // It's a shopkeeper!
                 // BEAUTIFUL!
@@ -149,7 +142,18 @@ class Core extends PluginBase implements Listener {
         }
     }
 
-    public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool{
+    public function onEntitySpawn(EntitySpawnEvent $event) : void {
+        if ($event->getEntity() instanceof Shopkeeper) {
+            // Add the shopkeeper to entity interface
+            if (!$event->getEntity()->hasCustomShopkeeperEntityId()) {
+                $entity = $event->getEntity();
+                $entity->setCustomShopkeeperEntityId(Utils::randomizer(10));
+                $this->entities->add($event->getEntity());
+            }
+        }
+    }
+
+    public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool {
         if (!($sender instanceof Player)) {
             $sender->sendMessage("This command can be only executed by in-game players!");
             return false;
@@ -256,7 +260,7 @@ class Core extends PluginBase implements Listener {
             $villager->setNameTagAlwaysVisible($shop->get()->{$name}->namevisible);
             $villager->setConfig($shopdata);
             $villager->spawnToAll();
-            $this->entities->add($villager);
+            // Will be managed by EntitySpawnEvent $this->entities->add($villager);
             return true;
         } elseif ($args[0] === "remove" || $args[0] === "despawn") {
             $sender->sendMessage("To remove a shopkeeper just hit it!");
@@ -315,13 +319,20 @@ class Core extends PluginBase implements Listener {
                                                 $event->getOrigin()->getPlayer()->sendMessage("§cYour inventory is full!");
                                                 return;
                                             } else {
+                                                print_r($result);
+                                                if ($result->getId() === 25266) {
+                                                    // Is a custom item
+                                                    $item = NbtManager::decode(Utils::comparator($this->trades->{$event->getOrigin()->getPlayer()->getName()}->item, $result->getCount(), $cm->get()->{$cm->getSingleKey()}->items));
+                                                } else {
+                                                    $translator = new TypeConverter();
+                                                    $item = $translator->netItemStackToCore($result);
+                                                }
+                                                /*
                                                 if ($this->server < 5) {
                                                     $translator = new TypeConverter();
                                                     $item = $translator->netItemStackToCore($result);
-                                                } else {
-                                                    $translator = (new TypeConverter())->getItemTranslator();
-                                                    $item = $translator->fromNetworkId($result->getId(), $result->getMeta(), $result->getBlockRuntimeId());
                                                 }
+                                                */
                                                 $item->setCount($result->getCount());
                                                 // Before set this we need to check and update the villager's inventory
                                                 $total = $result->getCount();
@@ -354,14 +365,17 @@ class Core extends PluginBase implements Listener {
                                                     if ($total > 0) {
                                                         return;
                                                     }
+
+                                                    if (gettype($inventoryInsideConfig) !== 'array') {
+                                                        Utils::errorLogger($this->getDataFolder(), "ERROR", "InventoryInsideConfig at Core.php#364 was an object and not an array!\nPlase report this with an issue!");
+                                                        $inventoryInsideConfig = [];
+                                                    }
     
                                                     $object = $cm->get()->{$cm->getSingleKey()};
                                                     $object->inventory = $inventoryInsideConfig;
                                                     $cm->set($cm->getSingleKey(), $object);
                                                 }
                                                 $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items[] = $item;
-                                                // Remove this item from the entity's inventory
-                                                //$itemglobal = $item;
                                             }
                                         }
                                     }

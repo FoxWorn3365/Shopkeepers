@@ -80,6 +80,7 @@ class EntityManager {
             'pitch' => $shop->getLocation()->getPitch(),
             'world' => $shop->getWorld()->getId(),
             'config' => base64_encode(json_encode($shop->getConfig())),
+            'id' => $shop->getCustomShopkeeperEntityId(),
             'nametag' => base64_encode(json_encode([
                 'visible' => $shop->isNameTagAlwaysVisible(),
                 'tag' => $shop->getNameTag()
@@ -112,8 +113,7 @@ class EntityManager {
     protected static function createEntity(string $rawdata, Server $server) : Shopkeeper {
         $data = (object)json_decode(base64_decode($rawdata));
         $location = new Location($data->x, $data->y, $data->z, $server->getWorldManager()->getWorld($data->world), $data->yaw, $data->pitch);
-        $entity = new Shopkeeper($location);
-        $entity->setConfig(json_decode(base64_decode($data->config)));
+        $entity = new Shopkeeper($location, json_decode(base64_decode($data->config)), $data->id);
         $tags = json_decode(base64_decode($data->nametag));
         $entity->setNameTag($tags->tag);
         $entity->setNameTagAlwaysVisible($tags->visible);

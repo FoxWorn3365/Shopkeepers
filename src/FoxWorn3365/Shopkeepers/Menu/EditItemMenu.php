@@ -135,13 +135,15 @@ class EditItemMenu {
 
             // Now let's analyze the slot
             switch ($action->getSlot()) {
-                case 7:
+                case 17:
                     // Oh crap, we need to delete this!
                     $config->items[$index] = null;
-                    unset($config->items[$index]);
-                    $cm->set($cm->getSingleKey(), json_encode($config));
+                    $cm->set($cm->getSingleKey(), $config);
+                    return $transaction->discard();
+                    /*
                     $retmenu = new EditMenu($cm, $cm->getSingleKey());
                     $retmenu->create()->send($transaction->getPlayer());
+                    */
                     break;
                 case 1:
                     $item = $inventory->getItem(10);
@@ -163,7 +165,7 @@ class EditItemMenu {
                         $object->buy = SerializedItem::encode($item);
                     }
                     break;
-                case 4:
+                case 4: 
                     $item = $inventory->getItem(13);
                     if ($item->getCount()+1 > 64) {
                         $transaction->getPlayer()->sendMessage("§cYou can't sell more than 64 items!");

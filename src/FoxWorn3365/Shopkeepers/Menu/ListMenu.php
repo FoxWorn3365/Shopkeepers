@@ -65,7 +65,12 @@ class ListMenu {
                 break;
             }
             $nameassociations[$slotindex] = $name;
-            $inventory->setItem($slotindex, Factory::item(388, 0, "{$name}\nStatus: §2Active"));
+            if ($config->admin) {
+                $shop = "§2true";
+            } else {
+                $shop = "§4false";
+            }
+            $inventory->setItem($slotindex, Factory::egg("§l{$name}\n\n§lTrades: §r" . count($config->items) . "/9\n§lAdmin shop:§r {$shop}"));
             $slotindex++;
         }
 

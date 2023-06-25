@@ -30,6 +30,8 @@ use FoxWorn3365\Shopkeepers\utils\Draw;
 use FoxWorn3365\Shopkeepers\utils\Factory;
 use FoxWorn3365\Shopkeepers\ConfigManager;
 
+use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
+
 class ShopInfoMenu {
     protected InvMenu $menu;
     protected ConfigManager $cm;
@@ -44,7 +46,7 @@ class ShopInfoMenu {
     }
 
     public function create() : InvMenu {
-        $this->menu->setName("'{$this->cm->getSingleKey()}' shop - Info");
+        $this->menu->setName("View shop {$this->cm->getSingleKey()}");
         $inventory = $this->menu->getInventory();
 
         // Draw the useful line
@@ -52,7 +54,7 @@ class ShopInfoMenu {
 
         // Now set the villager egg with name in the middle (slot 4)
         $inventory->clear(4);
-        $inventory->setItem(4, Factory::item(388, 0, $this->cm->getSingleKey()));
+        $inventory->setItem(4, Factory::egg($this->cm->getSingleKey()));
 
         // Now set the informations
         $inventory->setItem(10, Factory::item(377, 0, 'Shop config'));
@@ -60,7 +62,15 @@ class ShopInfoMenu {
         // Villager inventory
         if (!$this->config->admin) {
             $inventory->setItem(13, Factory::item(54, 0, "Shop inventory"));
+        } else {
+            $inventory->setItem(13, Factory::barrier("§cShop inventory\n§rDisabled!\n§oThis is an admin shop!"));  // ID: -161 Meta: 0 BRID: 10390
         }
+
+        // Summon option
+        $inventory->setItem(21, Factory::egg("Summon"));
+
+        // Misteryous option 
+        $inventory->setItem(23, Factory::barrier("§oUnknown\n\nv1.0"));
 
         // Edit Shopkeepers trades
         $st = Utils::getItem("minecraft:smithing_table");
@@ -68,8 +78,9 @@ class ShopInfoMenu {
         $inventory->setItem(16, $st);
 
         $cm = $this->cm;
+        $config = $this->config;
 
-        $this->menu->setListener(function($transaction) use ($cm) {
+        $this->menu->setListener(function($transaction) use ($cm, $config) {
             $slot = $transaction->getAction()->getSlot();
             switch ($slot) {
                 case 10:
@@ -95,6 +106,23 @@ class ShopInfoMenu {
                     }
                     $edit = new EditMenu($cm, $cm->getSingleKey());
                     $edit->create()->send($transaction->getPlayer());
+                    break;
+                case 21:
+                    if (!$transaction->getPlayer()->hasPermission("shopkeepers.shop.summon")) {
+                        $transaction->getPlayer()->removeCurrentWindow();
+                        $transaction->getPlayer()->sendMessage(self::NOT_PERM_MSG);
+                        break;
+                    }
+                    // Summon entity
+                    $shopdata = new \stdClass;
+                    $shopdata->author = $transaction->getPlayer()->getName();
+                    $shopdata->shop = $cm->getSingleKey();
+                    $villager = new Shopkeeper($transaction->getPlayer()->getLocation());
+                    $villager->setNameTag($cm->getSingleKey());
+                    $villager->setNameTagAlwaysVisible($config->namevisible);
+                    $villager->setConfig($shopdata);
+                    $villager->spawnToAll();
+                    $transaction->getPlayer()->removeCurrentWindow();
                     break;
             }
             return $transaction->discard();

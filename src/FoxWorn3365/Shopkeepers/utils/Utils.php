@@ -26,8 +26,8 @@ use pocketmine\item\LegacyStringToItemParserException;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 
-class Utils {
-    static function getItem(string $itemid) {
+final class Utils {
+    public static function getItem(string $itemid) : mixed {
 		try {
 			return LegacyStringToItemParser::getInstance()->parse(trim($itemid));
 		} catch (LegacyStringToItemParserException) {
@@ -35,7 +35,7 @@ class Utils {
 		}
     }
 
-    static function getIntItem(int $id, int $meta = 0) {
+    public static function getIntItem(int $id, int $meta = 0) : mixed {
         $itemid = "{$id}:{$meta}";
         try {
 			return LegacyStringToItemParser::getInstance()->parse(trim($itemid));
@@ -44,7 +44,7 @@ class Utils {
 		}
     }
 
-	static function errorLogger(string $data_dir, string $severity, string $reason) : void {
+	public static function errorLogger(string $data_dir, string $severity, string $reason) : void {
 		if (file_exists("{$data_dir}error.txt")) {
 			$stream = file_get_contents("{$data_dir}error.txt");
 		} else {
@@ -54,7 +54,7 @@ class Utils {
 		file_put_contents("{$data_dir}error.txt", $stream);
 	}
 
-	static function integrityChecker(string $data_dir) : void {
+	public static function integrityChecker(string $data_dir) : void {
 		foreach (glob("{$data_dir}*.json") as $file) {
 			$content = file_get_contents($file);
 			if (empty($content) || $content == " ") {
@@ -65,8 +65,73 @@ class Utils {
 				self::errorLogger($data_dir, "ERROR", "Invalid JSON in file {$file}!");
 				// Remove the dangerous file
 				@unlink($file);
+			} else {
+				// Correct the file
+				self::shopTypeChecker($data_dir, json_decode($content), $file);
 			}
 		}
 		// Perfect, ready to go!
+	}
+
+	public static function shopTypeChecker(string $data_dir, object $object, string $file) : void {
+		$end = clone $object;
+		foreach ($object as $name => $shop_a) {
+			$shop = clone $shop_a;
+			if (gettype($shop->admin) !== 'boolean') {
+				self::errorLogger($data_dir, "NOTICE", "Value of 'admin' inside shop '{$name}', file '{$file}' is not a boolean! Corrected");
+				$shop->admin = false;
+			}
+
+			if (gettype($shop->namevisible) !== 'boolean') {
+				self::errorLogger($data_dir, "NOTICE", "Value of 'namevisible' inside shop '{$name}', file '{$file}' is not a boolean! Corrected");
+				$shop->namevisible = false;
+			}
+
+			if (gettype($shop->items) !== 'array') {
+				// Oh shit is not array!
+				if (gettype($shop->items) === 'object') {
+					self::errorLogger($data_dir, "NOTICE", "Value of 'items' inside shop '{$name}', file '{$file}' is an object! Corrected");
+					$it = [];
+					foreach ($shop->items as $item) {
+						$it[] = $item;
+					}
+					$shop->items = $it;
+					//var_dump($shop->items);
+				} else {
+					self::errorLogger($data_dir, "WARNING", "Value of 'items' inside shop '{$name}', file '{$file}' is not a correct value! Neutralized");
+					$shop->items = [];
+				}
+			}
+
+			if (gettype($shop->inventory) !== 'array') {
+				// Oh shit is not array!
+				if (gettype($shop->inventory) === 'object') {
+					self::errorLogger($data_dir, "NOTICE", "Value of 'inventory' inside shop '{$name}', file '{$file}' is an object! Corrected");
+					$shop->inventory = (array)$shop->inventory;
+				} else {
+					self::errorLogger($data_dir, "WARNING", "Value of 'inventory' inside shop '{$name}', file '{$file}' is not a correct value! Neutralized");
+					$shop->inventory = [];
+				}
+			}
+			// Update the shop
+			$end->{$name} = $shop;
+		}
+		file_put_contents($file, json_encode($end));
+	}
+
+	public static function comparator(Item $buy, int $sellcount, array $items) : string {
+		foreach ($items as $item) {
+			if (SerializedItem::decode($item->buy)->equals($buy) && SerializedItem::decode($item->sell)->getCount() === $sellcount) {
+				return $item->sell;
+			}
+		}
+	}
+
+	public static function randomizer(int $lenght) : int {
+		$buffer = "";
+		for ($a = 0; $a < $lenght; $a++) {
+			$buffer .= rand(0, 9);
+		}
+		return (int)$buffer;
 	}
 }
