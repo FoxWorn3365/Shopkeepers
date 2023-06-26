@@ -62,6 +62,12 @@ class ConfigManager {
         $this->update($config);
     }
 
+    public function remove(string $key) : void {
+        $config = $this->get();
+        unset($config->{$key});
+        $this->update($config);
+    }
+
     public function setSingleKey(string $key) : void {
         $this->key = $key;
     }

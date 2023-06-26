@@ -54,6 +54,9 @@ class ShopConfigMenu {
         Draw::line(0, 8, $inventory, Factory::item(160, 8, ""));
         Draw::line(18, 26, $inventory, Factory::item(160, 8, ""));
 
+        $inventory->clear(4);
+        $inventory->setItem(4, Factory::egg($this->cm->getSingleKey() . "\n§oClick to return back!"));
+
         // Pass first option
         if ($this->config->namevisible) {
             $inventory->setItem(10, Factory::item(35, 5, "Shop's name Visible\nStatus: §2§lActive\n§r§oClick to disable!"));
@@ -116,6 +119,11 @@ class ShopConfigMenu {
                         $inventory->setItem(13, Factory::item(35, 5, "Admin shop\nStatus: §2§lActive\n§r§oClick to disable!"));
                         $config->admin = true;
                     }
+                    break;
+                case 4:
+                    // Return back to the ShopInfoMenu menu
+                    $menu = new ShopInfoMenu($cm);
+                    $menu->create()->send($transaction->getPlayer());
                     break;
             }
 

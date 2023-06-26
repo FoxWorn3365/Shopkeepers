@@ -61,4 +61,14 @@ class ItemUtils {
     public static final function stringParser(string $string) : ?Item {
         return (new StringToItemParser())->parse($string);
     }
+
+    public static function getId(Item $item) : int {
+        $translator = (new TypeConverter())->getItemTranslator();
+        return $translator->toNetworkIdQuiet($item)[0];
+    }
+
+    public static function getMeta(Item $item) : int {
+        $translator = (new TypeConverter())->getItemTranslator();
+        return $translator->toNetworkIdQuiet($item)[1];
+    }
 }

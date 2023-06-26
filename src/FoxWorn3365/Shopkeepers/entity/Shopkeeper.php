@@ -25,14 +25,16 @@ use pocketmine\entity\Location;
 use pocketmine\entity\EntitySizeInfo;
 
 class Shopkeeper extends Villager {
-    public ?object $shopconfig;
+    public ?object $shopconfig = null;
+    public ?int $customShopkeeperEntityId = null;
 
-    public function __construct(Location $loc, ?object $generalizedConfig = null) {
+    public function __construct(Location $loc, ?object $generalizedConfig = null, ?int $customId = null) {
         parent::__construct($loc, null);
 
         $this->setCanSaveWithChunk(false);
 
         $this->shopconfig = $generalizedConfig;
+        $this->customShopkeeperEntityId = $customId;
     }
 
     public function getName(): string {
@@ -53,5 +55,20 @@ class Shopkeeper extends Villager {
     
     public function getConfig() : object {
         return $this->shopconfig;
+    }
+
+    public function setCustomShopkeeperEntityId(int $id) : void {
+        $this->customShopkeeperEntityId = $id;
+    }
+
+    public function getCustomShopkeeperEntityId() : ?int {
+        return $this->customShopkeeperEntityId;
+    }
+
+    public function hasCustomShopkeeperEntityId() : bool {
+        if ($this->customShopkeeperEntityId === null) {
+            return false;
+        }
+        return true;
     }
 }

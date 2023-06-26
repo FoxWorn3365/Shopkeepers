@@ -49,7 +49,8 @@ class Manager {
         $this->player = $player;
         $this->entity = $entity;
         foreach ($this->config->items as $itemconfig) {
-            if (!(!empty($itemconfig->sell) && !empty($itemconfig->buy))) {
+            if ($itemconfig === null) { continue; }
+            if (!(!empty($itemconfig->sell) && !empty($itemconfig->buy)) && gettype($this->config->inventory) !== 'array') {
                 continue;
             }
             $this->container->add($itemconfig->sell, $itemconfig->buy, $this->config->inventory, $this->config->admin);
