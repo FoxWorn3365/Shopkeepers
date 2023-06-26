@@ -75,11 +75,13 @@ class Core extends PluginBase implements Listener {
     protected object $trades;
     protected object $tradeQueue;
 
+    protected string $defaultConfig = "IwojIFNob3BrZWVwZXJzIHYwLjkuMSBieSBGb3hXb3JtMzM2NQojIChDKSAyMDIzLW5vdyBGb3hXb3JuMzM2NQojIAojIFJlbGFzZWQgdW5kZXIgdGhlIEdQTC0zLjAgbGljZW5zZSAKIyBodHRwczovL2dpdGh1Yi5jb20vRm94V29ybjMzNjUvU2hvcGtlZXBlcnMvYmxvYi9tYWluL0xJQ0VOU0UKIwoKZW5hYmxlZDogdHJ1ZQoKIyBNYXggc2hvcGtlZXBlcidzIGVudGl0aWVzIGZvciBvbmUgcGxheWVyIChQRVIgU0hPUCkKbWF4LWVudGl0aWVzLWZvci1wbGF5ZXI6IDUKIyBQbGF5ZXIgdGhhdCBjYW4gYnlwYXNzIHRoaXMgbGltaXRhdGlvbgptYXgtZW50aXRpZXMtYnlwYXNzOgogIC0gWW91ck1pbmVjcmFmdFVzZXJuYW1lCgojIE1vZGVyYXRpb24gc2V0dGluZ3MgICAtIFRISVMgSVMgQSBDT05UQUlOIENPTkRJVElPTiBzbyBpZiB5b3Ugc2V0ICdwcm8nIGFsc28gbmFtZXMgbGlrZSAnYXByb24nLCAncHJvdG90eXB1cycsICdwcm90bycsICdwcm8nIGFuZCBpdCdzIGNhc2UgSU5TRU5TSVRJVkUKYmFubmVkLXNob3AtbmFtZXM6CiAgLSBoaXRsZXIKICAtIG5hemkKCiMgQmFubmVkIHNob3AgaXRlbSBuYW1lcyBzbyB0aGV5IGNhbid0IGJlIHNvbGQgb3IgYm91Z2h0CmJhbm5lZC1pdGVtLW5hbWVzOgogIC0gZGlhbW9uZF9heGUKCiMgQmFubmVkIGl0ZW0gSURzIApiYW5uZWQtaXRlbS1pZHM6CiAgLSAyNTU=";
+
     protected float $server = 5.0;
 
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
     public const AUTHOR = "FoxWorn3365";
-    public const VERSION = "0.9-pre";
+    public const VERSION = "0.9.1-pre";
 
     public function onLoad() : void {
         $this->menu = new \stdClass;
@@ -105,6 +107,19 @@ class Core extends PluginBase implements Listener {
 
         // Register event listener
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
+
+        // Load the config
+        if (!file_exists($this->getDataFolder() . "config.yml")) {
+            file_put_contents($this->getDataFolder() . "config.yml", base64_decode($this->defaultConfig));
+        }
+
+        // Open the config
+        $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
+
+        // Shall we need to disable the plugin?
+        if (!$this->config->get('enabled', true)) {
+            $this->getServer()->getPluginManager()->disablePlugin($this); // F
+        }
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
@@ -122,18 +137,23 @@ class Core extends PluginBase implements Listener {
         $entity = $event->getEntity();
         if ($entity instanceof Shopkeeper) {
             $data = $entity->getConfig();
-            if ($data->author === $event->getPlayer()->getName() && !$event->getPlayer()->isSneaking()) {
+            $cm = new ConfigManager($data->author, $this->getDataFolder());
+            $cm->setSingleKey($data->shop);
+            if (@$cm->get()->{$data->shop} === null) {
+                // Oh no, no config!
+                $event->getPlayer()->sendMessage("§cSorry but this shop does not exists anymore!");
+                // Remove the shop
+                $this->entities->remove($this->entities->generateEntityHash($event->getEntity()));
+                $event->getEntity()->kill();
+                return;
+            } elseif ($data->author === $event->getPlayer()->getName() && !$event->getPlayer()->isSneaking()) {
                 // Open the shopkeeper's ~~inventory~~ info page RN!
-                $cm = new ConfigManager($data->author, $this->getDataFolder());
-                $cm->setSingleKey($data->shop);
-                $menu = new ShopInfoMenu($cm);
+                $menu = new ShopInfoMenu($cm, true);
                 $menu->create()->send($event->getPlayer());
             } else {
                 // It's a shopkeeper!
                 // BEAUTIFUL!
                 // Now let's open the shopkeeper interface
-                $cm = new ConfigManager($data->author, $this->getDataFolder());
-                $cm->setSingleKey($data->shop);
                 $manager = new Manager($cm);
                 $this->trades->{$event->getPlayer()->getName()} = new \stdClass;
                 $this->trades->{$event->getPlayer()->getName()}->config = $data;
@@ -146,6 +166,21 @@ class Core extends PluginBase implements Listener {
         if ($event->getEntity() instanceof Shopkeeper) {
             // Add the shopkeeper to entity interface
             if (!$event->getEntity()->hasCustomShopkeeperEntityId()) {
+                // FIRST, check if the limit is not trepassed
+                $name = $event->getEntity()->getConfig()->shop;
+                $author = $event->getEntity()->getConfig()->author;
+                if (@$this->entities->list->{$author}->{$name} !== null) {
+                    if ($this->entities->list->{$author}->{$name} + 1 > $this->config->get('max-entities-for-player', 3) && !in_array($author, $this->config->get('max-entities-bypass', []))) {
+                        // Do not consent
+                        $event->getEntity()->getWorld()->getServer()->getPlayerExact($author)->sendMessage("§cSorry but you have reached the max shopkeepers entity for the shop {$name}\n§rUsed: " . $this->entities->list->{$author}->{$name} ."/" . $this->config->get('max-entities-for-player', 3));
+                        $event->getEntity()->kill();
+                        return;
+                    } else {
+                        $this->entities->list->{$author}->{$name}++;
+                    }
+                } else {
+                    $this->entities->list->{$author}->{$name} = 1;
+                }
                 $entity = $event->getEntity();
                 $entity->setCustomShopkeeperEntityId(Utils::randomizer(10));
                 $this->entities->add($event->getEntity());
@@ -194,6 +229,15 @@ class Core extends PluginBase implements Listener {
             if (empty($name = $args[1])) {
                 $name = $this->generateRandomString(7);
             }
+
+            foreach ($this->config->get('banned-shop-names', []) as $banned) {
+                if (strpos($name, $banned) !== false) {
+                    // Oh crap, this is banned!
+                    $sender->sendMessage("§cSorry but this name is banned!\n§rPlase contact your server administrator");
+                    return false;
+                }
+            }
+
             // Create the config 
             // OOOO why are u running? before, check if there's also an existing name
             if (@$shop->get()?->{$name} !== null) {
@@ -255,15 +299,31 @@ class Core extends PluginBase implements Listener {
             $shopdata = new \stdClass;
             $shopdata->author = $sender->getName();
             $shopdata->shop = $name;
-            $villager = new Shopkeeper($pos);
+            $villager = new Shopkeeper($pos, $shopdata);
             $villager->setNameTag($name);
             $villager->setNameTagAlwaysVisible($shop->get()->{$name}->namevisible);
-            $villager->setConfig($shopdata);
             $villager->spawnToAll();
             // Will be managed by EntitySpawnEvent $this->entities->add($villager);
             return true;
         } elseif ($args[0] === "remove" || $args[0] === "despawn") {
             $sender->sendMessage("To remove a shopkeeper just hit it!");
+            return true;
+        } elseif ($args[0] === "rename" && !empty($args[1]) && !empty($args[2])) {
+            if (!$sender->hasPermission("shopkeepers.shop.rename")) {
+                $sender->sendMessage(self::NOT_PERM_MSG);
+            }
+
+            $name = $args[1];
+            if (@$shop->get()?->{$name} === null) {
+                $sender->sendMessage("You don't have a shop called {$name}!");
+                return false;
+            }
+
+            // Fix name
+            $shop->set($args[2], $shop->get()->{$name});
+            $shop->remove($name);
+
+            $sender->sendMessage("Shop {$name} successfully renamed!");
             return true;
         } elseif (empty($args[0])) {
             if (!$sender->hasPermission("shopkeepers.shop.defaultGUI")) {
@@ -274,12 +334,7 @@ class Core extends PluginBase implements Listener {
             $menu->create($sender, $this->getDataFolder())->send($sender);
             return true;
         } else {
-            if (!$sender->hasPermission("shopkeepers.shop.defaultGUI")) {
-                $sender->sendMessage(self::NOT_PERM_MSG);
-            }
-
-            $menu = new InfoMenu();
-            $menu->create($sender, $this->getDataFolder())->send($sender);
+            return false;
         }
         return false;
     }
@@ -319,7 +374,6 @@ class Core extends PluginBase implements Listener {
                                                 $event->getOrigin()->getPlayer()->sendMessage("§cYour inventory is full!");
                                                 return;
                                             } else {
-                                                print_r($result);
                                                 if ($result->getId() === 25266) {
                                                     // Is a custom item
                                                     $item = NbtManager::decode(Utils::comparator($this->trades->{$event->getOrigin()->getPlayer()->getName()}->item, $result->getCount(), $cm->get()->{$cm->getSingleKey()}->items));
@@ -499,9 +553,11 @@ class Core extends PluginBase implements Listener {
                 if ($event->getDamager() instanceof Player) {
                     if ($event->getEntity()->getConfig()->author === $event->getDamager()->getName() && $event->getDamager()->hasPermission("shopkeepers.shop.remove")) {
                         $this->entities->remove($this->entities->generateEntityHash($event->getEntity()));
+                        $this->entities->list->{$event->getEntity()->getConfig()->author}->{$event->getEntity()->getConfig()->shop}--;
                         $event->getEntity()->kill();
                     } elseif ($event->getEntity()->getConfig()->author === $event->getDamager()->getName() && $event->getDamager()->hasPermission("shopkeepers.shop.kill")) {
                         $this->entities->remove($this->entities->generateEntityHash($event->getEntity()));
+                        $this->entities->list->{$event->getEntity()->getConfig()->author}->{$event->getEntity()->getConfig()->shop}--;
                         $event->getEntity()->kill();
                     } else {
                         $event->getDamager()->sendMessage("§cYou can't damage a shopkeeper!");

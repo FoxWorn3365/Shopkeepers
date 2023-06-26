@@ -139,11 +139,9 @@ class EditItemMenu {
                     // Oh crap, we need to delete this!
                     $config->items[$index] = null;
                     $cm->set($cm->getSingleKey(), $config);
-                    return $transaction->discard();
-                    /*
                     $retmenu = new EditMenu($cm, $cm->getSingleKey());
                     $retmenu->create()->send($transaction->getPlayer());
-                    */
+                    return $transaction->discard();
                     break;
                 case 1:
                     $item = $inventory->getItem(10);

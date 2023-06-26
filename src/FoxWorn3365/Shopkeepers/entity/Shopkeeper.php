@@ -58,7 +58,7 @@ class Shopkeeper extends Villager {
     }
 
     public function setCustomShopkeeperEntityId(int $id) : void {
-        $this->setCustomShopkeeperEntityId = $id;
+        $this->customShopkeeperEntityId = $id;
     }
 
     public function getCustomShopkeeperEntityId() : ?int {

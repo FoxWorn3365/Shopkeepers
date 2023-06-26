@@ -29,10 +29,12 @@ class EntityManager {
     protected string $base;
     protected array $elements = [];
     public array $entities = [];
+    public object $list;
 
     function __construct(string $base) {
         $this->base = $base;
         $this->retrive();
+        $this->list = new \stdClass;
     }
 
     protected function update() : void {
@@ -95,7 +97,6 @@ class EntityManager {
         foreach ($this->elements as $element) {
             if ($element == $hash) {
                 $this->elements[$count] = null;
-                unset($this->elements[$count]);
                 $this->update();
                 return;
             }
@@ -104,9 +105,26 @@ class EntityManager {
     }
 
     public function loadPlayer(Player $player) : void {
+        if (@$this->list->{$player->getName()} === null) {
+            $this->list->{$player->getName()} = new \stdClass;
+        }
+
         $server = $player->getServer();
         foreach ($this->elements as $shop) {
-            self::createEntity($shop, $player->getServer())->spawnTo($player);
+            if ($shop !== null) {
+                $entity = self::createEntity($shop, $player->getServer());
+                if (@$this->list->{$entity->getConfig()->author} === null) {
+                    $this->list->{$entity->getConfig()->author} = new \stdClass;
+                    $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
+                } else {
+                    if (@$this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} !== null) {
+                        $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop}++;
+                    } else {
+                        $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
+                    }
+                }
+                $entity->spawnTo($player);
+            }
         }
     }
 

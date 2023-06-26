@@ -70,6 +70,11 @@ final class Utils {
 				self::shopTypeChecker($data_dir, json_decode($content), $file);
 			}
 		}
+
+		// Now remove empty values from the .entities.json
+		if (file_exists("{$data_dir}.entities.json")) {
+			file_put_contents("{$data_dir}.entities.json", json_encode(self::clearArray(json_decode(file_get_contents("{$data_dir}.entities.json")))));
+		}
 		// Perfect, ready to go!
 	}
 
@@ -133,5 +138,15 @@ final class Utils {
 			$buffer .= rand(0, 9);
 		}
 		return (int)$buffer;
+	}
+
+	public static function clearArray(array $array) : array {
+		$return = [];
+		foreach ($array as $element) {
+			if ($element !== null) {
+				$return[] = $element;
+			}
+		}
+		return $return;
 	}
 }

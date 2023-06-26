@@ -63,4 +63,11 @@ final class Factory {
         $barrier->setCount($count);
         return $barrier;
     }
+
+    public static function nbt(string $nbt, string $name, int $count = 1) {
+        $item = NbtManager::decode($nbt);
+        $item->setCustomName("§r{$name}");
+        $item->setCount($count);
+        return $item;
+    }
 }
