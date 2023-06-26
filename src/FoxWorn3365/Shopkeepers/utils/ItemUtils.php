@@ -41,11 +41,11 @@ class ItemUtils {
 	}
 
     public static final function decode(int $id, int $meta, int $network) : ?Item {
-        return (new TypeConverter())->getItemTranslator()->fromNetworkId($id, $meta, $network);
+        return (new TypeConverter())->netItemStackToCore(Factory::itemStack($id, $meta, $network));
     }
 
     public static final function objectDecode(object $object) : ?Item {
-        return (new TypeConverter())->getItemTranslator()->fromNetworkId($object->id, $object->meta, $object->network);
+        return self::decode($object->id, $object->meta, $object->network);
     }
 
     public static final function typeDecode(object $object) : ?Item {

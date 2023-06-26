@@ -28,6 +28,9 @@ use pocketmine\block\VanillaBlocks;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 
+// Network
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
+
 final class Factory {
     public static function sign(int $meta, string $text) : ?Item {
         $item = Utils::getIntItem(160, $meta);
@@ -69,5 +72,9 @@ final class Factory {
         $item->setCustomName("§r{$name}");
         $item->setCount($count);
         return $item;
+    }
+
+    public static function itemStack(int $id, int $meta, int $netId, int $count = 1) : ItemStack {
+        return new ItemStack($id, $meta, $count, $netId, new CompoundTag(), [], []);
     }
 }
