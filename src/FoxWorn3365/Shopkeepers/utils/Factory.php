@@ -28,6 +28,9 @@ use pocketmine\block\VanillaBlocks;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 
+// Network
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
+
 final class Factory {
     public static function sign(int $meta, string $text) : ?Item {
         $item = Utils::getIntItem(160, $meta);
@@ -41,5 +44,37 @@ final class Factory {
         $item->setCustomName("§r{$name}");
         $item->setCount($count);
         return $item;
+    }
+
+    public static function rawItem(int $id, int $meta, string $name, int $count = 1) : ?Item {
+        $item = Utils::getIntItem($id, $meta);
+        $item->setCustomName($name);
+        $item->setCount($count);
+        return $item;
+    }
+
+    public static function egg(string $name, int $count = 1) : ?Item {
+        $egg = ItemUtils::decode(451, 0, 0);
+        $egg->setCustomName("§r{$name}");
+        $egg->setCount($count);
+        return $egg;
+    }
+
+    public static function barrier(string $name, int $count = 1) : ?Item {
+        $barrier = ItemUtils::decode(-161, 0, 10390);
+        $barrier->setCustomName("§r{$name}");
+        $barrier->setCount($count);
+        return $barrier;
+    }
+
+    public static function nbt(string $nbt, string $name, int $count = 1) {
+        $item = NbtManager::decode($nbt);
+        $item->setCustomName("§r{$name}");
+        $item->setCount($count);
+        return $item;
+    }
+
+    public static function itemStack(int $id, int $meta, int $netId, int $count = 1) : ItemStack {
+        return new ItemStack($id, $meta, $count, $netId, new CompoundTag(), [], []);
     }
 }
