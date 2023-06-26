@@ -73,7 +73,9 @@ class ShopInfoMenu {
         $inventory->setItem(20, Factory::item(388, 0, "§o§lSales\n\n§r§oThis function will be implemented with the §bSales & Shops §r§oupdate AKA §lv1.0"));
 
         // Summon option
-        $inventory->setItem(22, Factory::nbt("0a0000010005436f756e74010800044e616d65000f6d696e6563726166743a736b756c6c02000644616d616765000304000f504d4d504461746156657273696f6e000000000000000100", "§lSummon"));
+        $head = Utils::getItem("minecraft:skull");
+        $head->setCustomName("§r§lSummon");
+        $inventory->setItem(22, $head);
 
         // Misteryous option 
         $inventory->setItem(24, Factory::barrier("§oUnknown\n\nThis function will be implemented with the §bSales & Shops §r§oupdate AKA §lv1.0"));
