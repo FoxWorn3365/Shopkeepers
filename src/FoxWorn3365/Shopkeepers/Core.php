@@ -69,6 +69,9 @@ use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\DeprecatedCraf
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\convert\TypeConverter;
 
+// Exceptions
+use pocketmine\network\mcpe\convert\TypeConversionException;
+
 class Core extends PluginBase implements Listener {
     protected object $menu;
     protected EntityManager $entities;
@@ -374,12 +377,11 @@ class Core extends PluginBase implements Listener {
                                                 $event->getOrigin()->getPlayer()->sendMessage("§cYour inventory is full!");
                                                 return;
                                             } else {
-                                                if ($result->getId() === 25266) {
-                                                    // Is a custom item
-                                                    $item = NbtManager::decode(Utils::comparator($this->trades->{$event->getOrigin()->getPlayer()->getName()}->item, $result->getCount(), $cm->get()->{$cm->getSingleKey()}->items));
-                                                } else {
-                                                    $translator = new TypeConverter();
+                                                $translator = new TypeConverter();
+                                                try {
                                                     $item = $translator->netItemStackToCore($result);
+                                                } catch (TypeConversionException $e) {
+                                                    $item = NbtManager::decode(Utils::comparator($this->trades->{$event->getOrigin()->getPlayer()->getName()}->item, $result->getCount(), $cm->get()->{$cm->getSingleKey()}->items));
                                                 }
                                                 /*
                                                 if ($this->server < 5) {
