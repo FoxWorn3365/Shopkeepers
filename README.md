@@ -25,7 +25,7 @@
 <a href='https://youtu.be/FIAcOnTyW_Y'>Watch the video on YouTube</a>
 
 ## Features
-- Players can create theyr own Shopkeepers and manage it
+- Players can create their own Shopkeepers and manage it
 - Admin Shopkeepers
 - Vanilla trade page
 - Shopkeeper inventory for non-admin Shopkeepers
