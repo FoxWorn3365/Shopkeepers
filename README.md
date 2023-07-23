@@ -1,5 +1,5 @@
 <p align="center">
-    <img src='https://raw.githubusercontent.com/FoxWorn3365/Shopkeepers/resources/plugin-banner.png'>
+    <img src='https://raw.githubusercontent.com/FoxWorn3365/Shopkeepers/resources/plugin-banner.png'><br>
     <strong>Add Shopkeepers to your PocketMine-MP world! Allow the creation of simple barter stores between players or create adminshops!</strong>
     <div align="center">
         <a href="https://poggit.pmmp.io/p/Shopkeepers"><img src="https://poggit.pmmp.io/shield.state/Shopkeepers"></a>
