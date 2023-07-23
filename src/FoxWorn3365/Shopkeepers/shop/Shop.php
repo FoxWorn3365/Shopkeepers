@@ -34,14 +34,15 @@ use pocketmine\network\mcpe\protocol\UpdateTradePacket;
 use pocketmine\player\Player;
 
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
+use FoxWorn3365\Shopkeepers\entity\HumanShopkeeper;
 
 class Shop {
     protected ListTag $elements;
     protected Player $player;
-    protected Shopkeeper $shop;
+    protected Shopkeeper|HumanShopkeeper $shop;
 	protected string $title;
 
-    function __construct(ListTag $elements, Player $player, Shopkeeper $shop, string $title = "Trade") {
+    function __construct(ListTag $elements, Player $player, Shopkeeper|HumanShopkeeper $shop, string $title = "Trade") {
         $this->elements = $elements;
         $this->player = $player;
         $this->shop = $shop;

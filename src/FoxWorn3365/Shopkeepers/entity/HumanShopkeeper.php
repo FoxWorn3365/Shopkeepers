@@ -20,17 +20,17 @@
 
 namespace FoxWorn3365\Shopkeepers\entity;
 
-use pocketmine\entity\Villager;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
 use pocketmine\entity\EntitySizeInfo;
+use pocketmine\entity\Skin;
 
-class Shopkeeper extends Villager {
+class HumanShopkeeper extends Human {
     public ?object $shopconfig = null;
     public ?int $customShopkeeperEntityId = null;
 
-    public function __construct(Location $loc, ?object $generalizedConfig = null, ?int $customId = null) {
-        parent::__construct($loc, null);
+    public function __construct(Location $loc, Skin $skin, ?object $generalizedConfig = null, ?int $customId = null) {
+        parent::__construct($loc, $skin, null);
 
         $this->setCanSaveWithChunk(false);
 

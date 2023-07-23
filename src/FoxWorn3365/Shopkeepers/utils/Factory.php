@@ -61,7 +61,8 @@ final class Factory {
     }
 
     public static function barrier(string $name, int $count = 1) : ?Item {
-        $barrier = ItemUtils::decode(-161, 0, 10390);
+        //$barrier = ItemUtils::decode(-161, 0, 10390);
+        $barrier = Utils::getItem("minecraft:barrier");
         $barrier->setCustomName("§r{$name}");
         $barrier->setCount($count);
         return $barrier;
@@ -76,5 +77,12 @@ final class Factory {
 
     public static function itemStack(int $id, int $meta, int $netId, int $count = 1) : ItemStack {
         return new ItemStack($id, $meta, $count, $netId, new CompoundTag(), [], []);
+    }
+
+    public static function stringItem(string $item, string $name, int $count = 1) : ?Item {
+        $item = Utils::getItem($item);
+        $item->setCustomName("§r{$name}");
+        $item->setCount($count);
+        return $item;
     }
 }
