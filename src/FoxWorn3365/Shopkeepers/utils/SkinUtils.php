@@ -14,9 +14,9 @@
  * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
  * - Author GitHub: https://github.com/FoxWorn3365
  * 
- * Current file: /utils/Draw.php
+ * Current file: /utils/SkinUtils.php
  * STATIC CLASS
- * Description: Implements simple drawing tools like Paint (NOT 3D!!!)
+ * Description: Implements an easy way to manage skins using Himbeer\LibSkin\SkinConverter
  */
 
 namespace FoxWorn3365\Shopkeepers\utils;

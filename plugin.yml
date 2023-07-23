@@ -1,11 +1,11 @@
 name: Shopkeepers
-version: 0.9.1
+version: 1.0.0
 api: 4.0.0
 
 main: FoxWorn3365\Shopkeepers\Core
 author: FoxWorn3365
 website: https://github.com/FoxWorn3365/Shopkeepers
-description: Add shopkeepers to your PocketMine server!
+description: Add Shopkeepers to your PocketMine server!
 
 commands:
   shopkeepers:

@@ -14,8 +14,9 @@
  * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
  * - Author GitHub: https://github.com/FoxWorn3365
  * 
- * Current file: /entity/Shopkeeper.php
- * Description: The plugin's custom entity, useful because of the local data saved in Shopkeeper::$shopconfig
+ * Current file: /entity/HumanShopkeeper.php
+ * Description: The plugin's 2nd custom entity, useful because of the local data saved in HumanShopkeeper::$shopconfig.
+ *              This entity, because it's an Human does support skin!
  */
 
 namespace FoxWorn3365\Shopkeepers\entity;

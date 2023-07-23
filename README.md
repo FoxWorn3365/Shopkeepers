@@ -36,7 +36,7 @@
 **Shopkeepers** is made to be multi-version, in fact I announce with great joy that the plugin is available for both PocketMine-MP 5 and PocketMine-MP 4!
 > **Warning**<br>
 > This is the branch for **PocketMine-MP 4** only!<br>
-> The branch for PocketMine-MP **5** can be found [here](https://github.com/FoxWorn3365/Shopkeepers) or on [poggit]()
+> The branch for PocketMine-MP **5** can be found [here](https://github.com/FoxWorn3365/Shopkeepers) or on [poggit](https://poggit.pmmp.io/p/Shopkeepers/)
 
 ## Configuration
 The configuration of **Shopkeepers** allows you to customize some values to make it suitable for all servers.
@@ -103,6 +103,10 @@ We actually support a Skin System, please read up.
 
 ### OMG I CAN'T ACCESS TO THE INVENTORYM uyigqwieduwefibef
 If the Shopkeeper is an Admin Shop it does not have an inventory!
+
+### I can't set the 2nd item in the trade page!
+That's because you need to set first the first item.<br>
+Doesn't work? Close and reopen the GUI!
 
 ## Bug reporting
 Reporting bugs ~~to developers~~ to the developer😢 is very important to ensure the stability of the plugin, so in order to better track and manage all reports it is **incredibly necessary** that they are reported via [GitHub Issues](https://github.com/FoxWorn3365/Shopkeepers/issues).<br>
