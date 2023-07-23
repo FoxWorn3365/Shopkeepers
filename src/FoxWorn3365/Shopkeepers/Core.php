@@ -36,6 +36,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
 use pocketmine\Server;
 use pocketmine\level\Position;
+use pocketmine\entity\Entity;
 
 // Events
 use pocketmine\event\entity\EntityDamageEvent as Damage;
@@ -50,6 +51,7 @@ use pocketmine\network\mcpe\protocol\ActorEventPacket as EntityEventPacket;
 use pocketmine\network\mcpe\protocol\ItemStackRequestPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\BookEditPacket;
+use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 
 // Custom
 use FoxWorn3365\Shopkeepers\Menu\InfoMenu;
@@ -58,9 +60,11 @@ use FoxWorn3365\Shopkeepers\Menu\EditMenu;
 use FoxWorn3365\Shopkeepers\Menu\ListMenu;
 use FoxWorn3365\Shopkeepers\Menu\ShopInfoMenu;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
+use FoxWorn3365\Shopkeepers\entity\HumanShopkeeper;
 use FoxWorn3365\Shopkeepers\shop\Manager;
 use FoxWorn3365\Shopkeepers\utils\NbtManager;
 use FoxWorn3365\Shopkeepers\utils\Utils;
+use FoxWorn3365\Shopkeepers\utils\SkinUtils;
 
 // Newtork Parts
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\ItemStackRequest;
@@ -69,6 +73,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftingConsum
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\DeprecatedCraftingResultsStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\convert\TypeConverter;
+use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionData;
 
 // Exceptions
 use pocketmine\network\mcpe\convert\TypeConversionException;
@@ -78,6 +83,7 @@ class Core extends PluginBase implements Listener {
     protected EntityManager $entities;
     protected object $trades;
     protected object $tradeQueue;
+    protected object $handle;
 
     protected string $defaultConfig = "IwojIFNob3BrZWVwZXJzIHYwLjkuMSBieSBGb3hXb3JtMzM2NQojIChDKSAyMDIzLW5vdyBGb3hXb3JuMzM2NQojIAojIFJlbGFzZWQgdW5kZXIgdGhlIEdQTC0zLjAgbGljZW5zZSAKIyBodHRwczovL2dpdGh1Yi5jb20vRm94V29ybjMzNjUvU2hvcGtlZXBlcnMvYmxvYi9tYWluL0xJQ0VOU0UKIwoKZW5hYmxlZDogdHJ1ZQoKIyBNYXggc2hvcGtlZXBlcidzIGVudGl0aWVzIGZvciBvbmUgcGxheWVyIChQRVIgU0hPUCkKbWF4LWVudGl0aWVzLWZvci1wbGF5ZXI6IDUKIyBQbGF5ZXIgdGhhdCBjYW4gYnlwYXNzIHRoaXMgbGltaXRhdGlvbgptYXgtZW50aXRpZXMtYnlwYXNzOgogIC0gWW91ck1pbmVjcmFmdFVzZXJuYW1lCgojIE1vZGVyYXRpb24gc2V0dGluZ3MgICAtIFRISVMgSVMgQSBDT05UQUlOIENPTkRJVElPTiBzbyBpZiB5b3Ugc2V0ICdwcm8nIGFsc28gbmFtZXMgbGlrZSAnYXByb24nLCAncHJvdG90eXB1cycsICdwcm90bycsICdwcm8nIGFuZCBpdCdzIGNhc2UgSU5TRU5TSVRJVkUKYmFubmVkLXNob3AtbmFtZXM6CiAgLSBoaXRsZXIKICAtIG5hemkKCiMgQmFubmVkIHNob3AgaXRlbSBuYW1lcyBzbyB0aGV5IGNhbid0IGJlIHNvbGQgb3IgYm91Z2h0CmJhbm5lZC1pdGVtLW5hbWVzOgogIC0gZGlhbW9uZF9heGUKCiMgQmFubmVkIGl0ZW0gSURzIApiYW5uZWQtaXRlbS1pZHM6CiAgLSAyNTU=";
 
@@ -85,12 +91,13 @@ class Core extends PluginBase implements Listener {
 
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
     public const AUTHOR = "FoxWorn3365";
-    public const VERSION = "0.9.1-pre";
+    public const VERSION = "1.0.0";
 
     public function onLoad() : void {
         $this->menu = new \stdClass;
         $this->trades = new \stdClass;
         $this->tradeQueue = new \stdClass;
+        $this->handle = new \stdClass;
     }
 
     public function onEnable() : void {
@@ -102,6 +109,7 @@ class Core extends PluginBase implements Listener {
 
         // Create the config folder if it does not exists
         @mkdir($this->getDataFolder());
+        @mkdir($this->getDataFolder() . 'skins');
 
         // Check for file integrity
         Utils::integrityChecker($this->getDataFolder());
@@ -132,43 +140,18 @@ class Core extends PluginBase implements Listener {
 
         // Create the player's object queue for managing event procession
         $this->tradeQueue->{$event->getPlayer()->getName()} = false;
+        $this->handle->{$event->getPlayer()->getName()} = false;
     }
 
     public function onPlayerEntityInteract(Interaction $event) : void {
-        if (!$event->getPlayer()->hasPermission("shopkeepers.shop.use")) {
-            $event->getPlayer()->sendMessage(self::NOT_PERM_MSG);
-        }
-        $entity = $event->getEntity();
-        if ($entity instanceof Shopkeeper) {
-            $data = $entity->getConfig();
-            $cm = new ConfigManager($data->author, $this->getDataFolder());
-            $cm->setSingleKey($data->shop);
-            if (@$cm->get()->{$data->shop} === null) {
-                // Oh no, no config!
-                $event->getPlayer()->sendMessage("§cSorry but this shop does not exists anymore!");
-                // Remove the shop
-                $this->entities->remove($this->entities->generateEntityHash($event->getEntity()));
-                $event->getEntity()->kill();
-                return;
-            } elseif ($data->author === $event->getPlayer()->getName() && !$event->getPlayer()->isSneaking()) {
-                // Open the shopkeeper's ~~inventory~~ info page RN!
-                $menu = new ShopInfoMenu($cm, true);
-                $menu->create()->send($event->getPlayer());
-            } else {
-                // It's a shopkeeper!
-                // BEAUTIFUL!
-                // Now let's open the shopkeeper interface
-                $manager = new Manager($cm);
-                $this->trades->{$event->getPlayer()->getName()} = new \stdClass;
-                $this->trades->{$event->getPlayer()->getName()}->config = $data;
-                $this->trades->{$event->getPlayer()->getName()}->items = [];
-                $manager->send($event->getPlayer(), $entity);
-            }
+        if (!$this->handle->{$event->getPlayer()->getName()}) {
+            $this->handle->{$event->getPlayer()->getName()} = true;
+            $this->entityInteractionLoad($event->getEntity(), $event->getPlayer());
         }
     }
 
     public function onEntitySpawn(EntitySpawnEvent $event) : void {
-        if ($event->getEntity() instanceof Shopkeeper) {
+        if ($event->getEntity() instanceof Shopkeeper || $event->getEntity() instanceof HumanShopkeeper) {
             // Add the shopkeeper to entity interface
             if (!$event->getEntity()->hasCustomShopkeeperEntityId()) {
                 // FIRST, check if the limit is not trepassed
@@ -198,6 +181,7 @@ class Core extends PluginBase implements Listener {
             $sender->sendMessage("This command can be only executed by in-game players!");
             return false;
         }
+
         $shop = new ConfigManager($sender, $this->getDataFolder());
 
         // Empty treath
@@ -304,7 +288,14 @@ class Core extends PluginBase implements Listener {
             $shopdata = new \stdClass;
             $shopdata->author = $sender->getName();
             $shopdata->shop = $name;
-            $villager = new Shopkeeper($pos, $shopdata);
+            if (SkinUtils::find($name, $sender->getName(), $this->getDataFolder())) {
+                // Has a skin, let's summon an human entity after getting the skin
+                $skin = SkinUtils::get($name, $sender->getName(), $this->getDataFolder());
+                $villager = new HumanShopkeeper($pos, $skin, $shopdata);
+            } else {
+                // A simple Shopkeeper, so summon a villager-like entity
+                $villager = new Shopkeeper($pos, $shopdata);
+            }
             $villager->setNameTag($name);
             $villager->setNameTagAlwaysVisible($shop->get()->{$name}->namevisible);
             $villager->spawnToAll();
@@ -312,6 +303,40 @@ class Core extends PluginBase implements Listener {
             return true;
         } elseif ($args[0] === "remove" || $args[0] === "despawn") {
             $sender->sendMessage("To remove a shopkeeper just hit it!");
+            return true;
+        } elseif ($args[0] === "history" && !empty($args[1])) {
+            if (!$sender->hasPermission("shopkeepers.shop.history")) {
+                $sender->sendMessage(self::NOT_PERM_MSG);
+            }
+
+            $name = $args[1];
+            if (@$shop->get()?->{$name} === null) {
+                $sender->sendMessage("You don't have a shop called {$name}!");
+                return false;
+            }
+
+            if (!empty($args[2])) {
+                $page = $args[2];
+            } else {
+                $page = 1;
+            }
+
+            $history = (array)json_decode(base64_decode(@$shop->get()->{$name}->history));
+
+            // Let's divide in pages
+            $pages = ceil(count($history)/20);
+
+            if ($page > $pages) {
+                $sender->sendMessage("§cSorry but there are only {$pages} pages!");
+            } else {
+                $message = "§lTrade history for Shopkeeper {$name}.§r\nPage §l{$page}§r/{$pages}\n";
+                for ($a = ($page-1)*20; $a < $page*20; $a++) {
+                    if (!empty($history[$a])) {
+                        $message .= "\n" . $history[$a];
+                    }
+                }
+                $sender->sendMessage($message);
+            }
             return true;
         } elseif ($args[0] === "rename" && !empty($args[1]) && !empty($args[2])) {
             if (!$sender->hasPermission("shopkeepers.shop.rename")) {
@@ -359,10 +384,12 @@ class Core extends PluginBase implements Listener {
         $itemglobal = null;
         $inventoryInsideConfig = null;
         $log = "";
-
+        $stackcount = 1;
+        $maxcount = 1;
+        
         if ($event->getPacket() instanceof ItemStackRequestPacket) {
             $inventory = $event->getOrigin()->getPlayer()->getInventory();
-
+            $maxcount = count($event->getPacket()->getRequests());
             foreach ($event->getPacket()->getRequests() as $request) {
                 if ($request instanceof ItemStackRequest) {
                     foreach ($request->getActions() as $action) {
@@ -435,7 +462,7 @@ class Core extends PluginBase implements Listener {
                                                     }
 
                                                     if (gettype($inventoryInsideConfig) !== 'array') {
-                                                        Utils::errorLogger($this->getDataFolder(), "ERROR", "InventoryInsideConfig at Core.php#364 was an object and not an array!\nPlase report this with an issue!");
+                                                        Utils::errorLogger($this->getDataFolder(), "ERROR", "InventoryInsideConfig at Core.php#476 was an object and not an array!\nPlase report this with an issue!");
                                                         $inventoryInsideConfig = [];
                                                     }
     
@@ -476,9 +503,9 @@ class Core extends PluginBase implements Listener {
                                         }
 
                                         if ($a === 0) {
-                                            $log .= "§l" . $data->items[$localCount]->item->getCount() . "§r " . $data->items[$localCount]->item->getName();
+                                            $log .= "§l" . $quota . "§r " . $data->items[$localCount]->item->getName();
                                         } else {
-                                            $log .= " and §l" . $data->items[$localCount]->item->getCount() . "§r " . $data->items[$localCount]->item->getName();
+                                            $log .= " and §l" . $quota . "§r " . $data->items[$localCount]->item->getName();
                                             $config = $cm->get()->{$cm->getSingleKey()};
                                             $inv = (array)json_decode(base64_decode($config->history));
                                             $inv[] = $log;
@@ -486,7 +513,7 @@ class Core extends PluginBase implements Listener {
                                             $cm->set($cm->getSingleKey(), $config);
                                         }
     
-                                        if ($data->items[$localCount]->count > 1) {
+                                        if ($data->items[$localCount]->count > 0) {
                                             $this->trades->{$event->getOrigin()->getPlayer()->getName()}->count = $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items[$localCount]->count - $quota;
                                             $data->items[$localCount]->item->setCount($data->count - $quota);
                                             foreach ($this->trades->{$event->getOrigin()->getPlayer()->getName()}->itemsAdd as $item) {
@@ -553,16 +580,20 @@ class Core extends PluginBase implements Listener {
                                 $this->trades->{$event->getOrigin()->getPlayer()->getName()} = null;
                             } else {
                                 if (!$ic->specialstack) {
+                                    if ($count > $maxcount) {
+                                        $ic->specialstack = true;
+                                    }
+
                                     if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null && $action->getSource()->getContainerId() != 47) {
                                         // So we need to get the item from the slot
                                         if ($this->trades->{$event->getOrigin()->getPlayer()->getName()} instanceof \stdClass) {
                                             // If it's stdClass it's beautiful!
                                             if ($event->getOrigin()->getPlayer()->getInventory()->getSize() > $action->getSource()->getSlotId()) {
-                                                echo "\n\nTR\n\n";
                                                 $item = new \stdClass;
                                                 $item->item = @$event->getOrigin()->getPlayer()->getInventory()->getItem($action->getSource()->getSlotId()) ?? VanillaItems::AIR();
                                                 $item->count = $action->getCount();
                                                 $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items[] = $item;
+                                                $stackcount++;
                                             }
                                         }
                                     }
@@ -578,14 +609,26 @@ class Core extends PluginBase implements Listener {
                 }
             }
         } elseif ($event->getPacket() instanceof ContainerClosePacket) {
+            $this->handle->{$event->getOrigin()->getPlayer()->getName()} = false;
             if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null) {
                 $this->trades->{$event->getOrigin()->getPlayer()->getName()} = null;
+            }
+        } elseif ($event->getPacket() instanceof InventoryTransactionPacket && $event->getPacket()->trData instanceof UseItemOnEntityTransactionData && $event->getPacket()->trData->getActionType() === UseItemOnEntityTransactionData::ACTION_INTERACT) {
+            //$entity = $this->getServer()->getWorldManager()->findEntity($event->getPacket()->trData->getEntityRuntimeId());
+            $entity = $this->getServer()->getWorldManager()->findEntity($event->getPacket()->trData->getActorRuntimeId());
+            $player = $entity->getWorld()->getNearestEntity($event->getPacket()->trData->getPlayerPosition(), 2);
+
+            if (($entity instanceof Shopkeeper || $entity instanceof HumanShopkeeper) && $player instanceof Player) {
+                if (!$this->handle->{$player->getName()}) {
+                    $this->handle->{$player->getName()} = true;
+                    $this->entityInteractionLoad($entity, $player);
+                }
             }
         }
     }
 
-    public function onEntityDamage(Damage $event) {
-        if ($event->getEntity() instanceof Shopkeeper) {
+    public function onEntityDamage(Damage $event) : void {
+        if ($event->getEntity() instanceof Shopkeeper || $event->getEntity() instanceof HumanShopkeeper) {
             if ($event instanceof EntityDamageByEntityEvent) {
                 if (@$event->getDamager() === null) {
                     $event->cancel();
@@ -609,6 +652,43 @@ class Core extends PluginBase implements Listener {
                 }
             } else {
                 $event->cancel();
+            }
+        }
+    }
+
+    public function entityInteractionLoad(Entity $entity, Player $player) : void {
+        if (!$player->hasPermission("shopkeepers.shop.use")) {
+            $player->sendMessage(self::NOT_PERM_MSG);
+        }
+        if ($entity instanceof Shopkeeper || $entity instanceof HumanShopkeeper) {
+            $data = $entity->getConfig();
+            $cm = new ConfigManager($data->author, $this->getDataFolder());
+            $cm->setSingleKey($data->shop);
+            if (@$cm->get()->{$data->shop} === null) {
+                // Oh no, no config!
+                $player->sendMessage("§cSorry but this shop does not exists anymore!");
+                // Remove the shop
+                $this->entities->remove($this->entities->generateEntityHash($entity));
+                $entity->kill();
+                return;
+            } elseif ($data->author === $player->getName() && !$player->isSneaking()) {
+                // Open the shopkeeper's ~~inventory~~ info page RN!
+                $menu = new ShopInfoMenu($cm, true);
+                $menu->create()->send($player);
+            } else {
+                // It's a shopkeeper!
+                // BEAUTIFUL!
+                // Now let's open the shopkeeper interface
+                // First, check if the shop is enabled
+                if (@$cm->get()->{$cm->getSingleKey()}->enabled) {
+                    $manager = new Manager($cm);
+                    $this->trades->{$player->getName()} = new \stdClass;
+                    $this->trades->{$player->getName()}->config = $data;
+                    $this->trades->{$player->getName()}->items = [];
+                    $manager->send($player, $entity);
+                } else {
+                    $event->getPlayer()->sendMessage("Sorry but this shop is §cdisabled§r!");
+                }
             }
         }
     }

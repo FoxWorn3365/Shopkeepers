@@ -30,8 +30,10 @@ use FoxWorn3365\Shopkeepers\utils\Draw;
 use FoxWorn3365\Shopkeepers\utils\Factory;
 use FoxWorn3365\Shopkeepers\utils\NbtManager;
 use FoxWorn3365\Shopkeepers\ConfigManager;
+use FoxWorn3365\Shopkeepers\utils\SkinUtils;
 
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
+use FoxWorn3365\Shopkeepers\entity\HumanShopkeeper;
 
 class ShopInfoMenu {
     protected InvMenu $menu;
@@ -66,7 +68,7 @@ class ShopInfoMenu {
         if (!$this->config->admin) {
             $inventory->setItem(12, Factory::stringItem("minecraft:chest", "§l§9Inventory\n\n§r§oSee the inventory of the Shopkeeper"));
         } else {
-            $inventory->setItem(12, Factory::barrier("§l§cShop inventory\n\n§rDisabled!\n§oThis is an admin shop!"));  // ID: -161 Meta: 0 BRID: 10390
+            $inventory->setItem(12, Factory::barrier("§l§cShop inventory\n\n§rDisabled!\n§oThis is an admin shop!"));
         }
 
         // Shop discounts announcer for v1.0
@@ -92,7 +94,7 @@ class ShopInfoMenu {
         $config = $this->config;
         $local = $this->local;
 
-        $this->menu->setListener(function($transaction) use ($cm, $config, $local) {
+        $this->menu->setListener(function($transaction) use ($cm, &$config, $local) {
             $slot = $transaction->getAction()->getSlot();
             switch ($slot) {
                 case 10:
@@ -138,10 +140,16 @@ class ShopInfoMenu {
                     $shopdata = new \stdClass;
                     $shopdata->author = $transaction->getPlayer()->getName();
                     $shopdata->shop = $cm->getSingleKey();
-                    $villager = new Shopkeeper($transaction->getPlayer()->getLocation());
+                    if (SkinUtils::find($cm->getSingleKey(), $transaction->getPlayer()->getName(), $transaction->getPlayer()->getServer()->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder())) {
+                        // Has a skin, let's summon an human entity after getting the skin
+                        $skin = SkinUtils::get($cm->getSingleKey(), $transaction->getPlayer()->getName(), $transaction->getPlayer()->getServer()->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder());
+                        $villager = new HumanShopkeeper($transaction->getPlayer()->getLocation(), $skin, $shopdata);
+                    } else {
+                        // A simple Shopkeeper, so summon a villager-like entity
+                        $villager = new Shopkeeper($transaction->getPlayer()->getLocation(), $shopdata);
+                    }
                     $villager->setNameTag($cm->getSingleKey());
                     $villager->setNameTagAlwaysVisible($config->namevisible);
-                    $villager->setConfig($shopdata);
                     $villager->spawnToAll();
                     $transaction->getPlayer()->removeCurrentWindow();
                     break;
@@ -159,6 +167,7 @@ class ShopInfoMenu {
                     }
 
                     $cm->set($cm->getSingleKey(), $config);
+                    $transaction->getPlayer()->removeCurrentWindow();
                     break;
                 case 24:
                     if (!$transaction->getPlayer()->hasPermission("shopkeepers.shop.history")) {
@@ -169,17 +178,18 @@ class ShopInfoMenu {
 
                     $transaction->getPlayer()->removeCurrentWindow();
                     $transaction->getPlayer()->sendMessage("For the complete history please use /sk history <SHOPKEEPER> [PAGE]");
-                    $message = "§lLast 20 trades for this Shopkeeper:\n";
                     $array = (array)json_decode(base64_decode($config->history));
                     if (count($array) > 20) {
+                        $message = "§lLast 20 trades for this Shopkeeper:§r\n";
                         $count = count($array) - 20;
                     } else {
-                        $count = count($array);
+                        $message = "§lLast " . count($array) . " trades for this Shopkeeper:§r\n";
+                        $count = 0;
                     }
 
                     for ($a = $count; $a < count($array); $a++) {
                         $item = $array[$a];
-                        $message = "\n{$item}";
+                        $message .= "\n{$item}";
                     }
                     $transaction->getPlayer()->sendMessage($message);
                     break;

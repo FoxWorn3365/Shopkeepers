@@ -21,6 +21,7 @@
 namespace FoxWorn3365\Shopkeepers\Menu;
 
 use pocketmine\item\VanillaItems;
+use pocketmine\block\VanillaBlocks;
 use pocketmine\item\Item;
 
 // Pocketmine Network part
@@ -104,12 +105,6 @@ class EditItemMenu {
             $buyitem = SerializedItem::decode($buy);
         }
 
-        if ($buy2 === null) {
-            $buyitem2 = VanillaItems::AIR();
-        } else {
-            $buyitem2 = SerializedItem::decode($buy2);
-        }
-
         // Now load simple screen
         $this->menu->setName("Editing shop {$this->config->title}");
         $this->menu->getInventory()->setItem(17, Factory::item(160, 14, "Delete the item"));
@@ -126,9 +121,12 @@ class EditItemMenu {
         $this->menu->getInventory()->setItem(5, Factory::item(35, 13, "+1"));
         $this->menu->getInventory()->setItem(23, Factory::item(35, 14, "-1"));
 
+        //$this->menu->getInventory()->setItem(11, Factory::stringItem("minecraft:chest", "porcodio"));
         // Put data
         $this->menu->getInventory()->setItem(10, $buyitem);
-        $this->menu->getInventory()->setItem(11, $buyitem2);
+        if ($buy2 !== null && SerializedItem::decode($buy2)->getName() !== "Air") {
+            $this->menu->getInventory()->setItem(11, SerializedItem::decode($buy2));
+        }
         $this->menu->getInventory()->setItem(14, $sellitem);
 
         $cm = $this->cm;
@@ -177,6 +175,9 @@ class EditItemMenu {
                     break;
                 case 2:
                     $item = $inventory->getItem(11);
+                    if ($item->getName() === "Air") {
+                        break;
+                    }
                     if ($item->getCount() + 1 > 64) {
                         $transaction->getPlayer()->sendMessage("§cYou can't sell an item for more than 64 items!");
                     } else {
@@ -187,6 +188,9 @@ class EditItemMenu {
                     break;
                 case 20:
                     $item = $inventory->getItem(11);
+                    if ($item->getName() === "Air") {
+                        break;
+                    }
                     if ($item->getCount()-1 < 1) {
                         $transaction->getPlayer()->sendMessage("§cYou can't sell an item for less than 1 item!");
                     } else {
@@ -237,21 +241,27 @@ class EditItemMenu {
                     break;
                 case 11:
                     $presence = $inventory->getItem(10);
-                    if ($presence === VanillaItems::AIR() || $presence === null) {
+                    if (@$presence->getName() == "Air" || $presence === null) {
                         $transaction->getPlayer()->sendMessage("§4Sorry but you cannot cannot set the first buy item!");
+                        usleep(2500);
+                        $inventory->clear(11);
+                        $object->buy2 = null;
                         break;
                     }
 
-                    if ($transaction->getItemClickedWith() !== null && $transaction->getItemClickedWith() != VanillaItems::AIR()) {
+                    if ($transaction->getItemClickedWith() !== null && @$transaction->getItemClickedWith()->getVanillaName() != "Air") {
                         // Let's change the object also in the inventory
                         $inventory->clear(11);
                         // Now let's decode the item
                         $object->buy2 = SerializedItem::encode($transaction->getItemClickedWith());
                         usleep(5000);
                         $inventory->setItem(11, $transaction->getItemClickedWith());
-                    } elseif ($transaction->getItemClickedWith() === null || $transaction->getItemClickedWith() === VanillaItems::AIR()) {
+                    } elseif ($transaction->getItemClickedWith() === null || @$transaction->getItemClickedWith()->getVanillaName() == "Air") {
                         $object->buy2 = null;
+                        usleep(2500);
                         $inventory->clear(11);
+                    } else {
+                        var_dump($transaction->getItemClickedWith()->getBlock()->getName());
                     }
                     break;
             }

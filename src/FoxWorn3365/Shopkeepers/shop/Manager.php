@@ -30,13 +30,14 @@ use FoxWorn3365\Shopkeepers\ConfigManager;
 use FoxWorn3365\Shopkeepers\utils\Utils;
 use FoxWorn3365\Shopkeepers\utils\ItemUtils;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
+use FoxWorn3365\Shopkeepers\entity\HumanShopkeeper;
 
 class Manager {
     protected Shop $shop;
     protected ConfigManager $cm;
     protected object $config;
     protected Player $player;
-    protected Shopkeeper $entity;
+    protected Shopkeeper|HumanShopkeeper $entity;
     protected ElementContainer $container;
 
     function __construct(ConfigManager $cm) {
@@ -45,15 +46,18 @@ class Manager {
         $this->container = new ElementContainer();
     }
 
-    public function send(Player $player, Shopkeeper $entity) : void {
+    public function send(Player $player, Shopkeeper|HumanShopkeeper $entity) : void {
         $this->player = $player;
         $this->entity = $entity;
         foreach ($this->config->items as $itemconfig) {
             if ($itemconfig === null) { continue; }
-            if (!(!empty($itemconfig->sell) && !empty($itemconfig->buy)) && gettype($this->config->inventory) !== 'array') {
+            if (gettype(@$this->config->inventory) !== 'array') {
                 continue;
+            } else {
+                if (@$itemconfig->sell !== null && @$itemconfig->buy !== null) {
+                    $this->container->add($itemconfig->sell, @$itemconfig->buy, $this->config->inventory, $this->config->admin, @$itemconfig->buy2);
+                }
             }
-            $this->container->add($itemconfig->sell, @$itemconfig->buy, $this->config->inventory, $this->config->admin, @$itemconfig->buy2);
         }
         
         $shop = new Shop($this->container->toNBT(), $player, $entity, $this->config->title);

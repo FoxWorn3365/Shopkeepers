@@ -10,7 +10,7 @@ description: Add shopkeepers to your PocketMine server!
 commands:
   shopkeepers:
     description: The main shopkeepers command
-    usage: "/shopkeepers [list|create|summon|rename|edit|info] <NAME>"
+    usage: "/shopkeepers [list|create|summon|rename|edit|info|history] <NAME>"
     aliases:
       - sk
       - shopk

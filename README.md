@@ -1,5 +1,5 @@
 <p align="center">
-    <img src='https://raw.githubusercontent.com/FoxWorn3365/Shopkeepers/pmmp4-dev/plugin-banner.png'>
+    <img src='https://raw.githubusercontent.com/FoxWorn3365/Shopkeepers/resources/plugin-banner.png'>
     <strong>Add Shopkeepers to your PocketMine-MP world! Allow the creation of simple barter stores between players or create adminshops!</strong>
     <div align="center">
         <a href="https://poggit.pmmp.io/p/Shopkeepers"><img src="https://poggit.pmmp.io/shield.state/Shopkeepers"></a>
@@ -16,7 +16,7 @@
 </p>
 
 ---
-<h1 align="center">Shopkeepers v0.9.1 for PocketMine-MP 5</h1>
+<h1 align="center"><b>Shopkeepers v1.0</b> for PocketMine-MP 5</h1>
 <br>
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
@@ -59,6 +59,26 @@ Here a list of all commands that you can use:
 | summon | SHOP NAME | Summon a Shopkeeper entity (as a Villager) for your Shop |
 | rename | SHOP NAME and NEW NAME | [NOT AVAILABLE] Rename a current shop |
 | list | none | Show all of your shops |
+| history | SHOP NAME and PAGE | Show the trade history for the shopkeeper |
+
+## Shopkeepers Skin System (SSS)
+Yes, the v1.0 brought an epic function: now you can set a skin of a Shopkeeper.<br>
+Unfortunately players can't add a skin of a Shopkeeper for multiple reasons:
+- Memory
+- Memory
+- Memory
+- Hmm, Memory?
+
+Anyways, to avoid abuse of this system we have made this feature usable only by the server administrator.
+
+### How to add a skin of a Shopkeeper
+You should have seen something new in the `Shopkeepers` folder, the `skins` folder, and that is where all the skins should be put.
+> **Warning**<br>
+> Skins MUST BE in a `.png` file!
+
+The file name should be composed as follows: `<PLAYER NAME>_<SHOP NAME>.png`, for example `FoxWorn3365_Fox.png` is valid and will be used by the plugin.
+### I don't want to select skins
+Well, if no skin is provided the classic villager is spawned. yeee
 
 ## F.A.Q.
 ### How to create an Admin shop
@@ -66,14 +86,23 @@ There is not really an Admin shop but you can activate this function by using th
 
 ### How to see a Shopkeeper's inventory
 There are two ways:
-- Use the command `/sk info <SHOP NAME>` and then click on the chest at the center of the GUI
-- Click on the Shopkeeper (Villager) entity
+- Use the command `/sk info <SHOP NAME>` and then click on the chest!
+- Click on the Shopkeeper (Villager) entity and then click on the chest!
 
 ### I want to access to the Shopkeeper's trade page but if i click the entity i access the inventory!
 Easy: shift and click on the Shopkeeper
 
 ### How to despawn a Shopkeeper
 More easy: just hit it, it will die in only one hit!
+
+### I have [ClearLag](https://poggit.pmmp.io/p/ClearLag/2.1.0) and it removes the Shopkeepers entites!
+Edit the config of ClearLag changing to `false` [this option](https://github.com/tobiaskirchmaier/ClearLag/blob/03e2a03a5f8868216dfc89eb78f51523ff228d6b/resources/config.yml#L84C5-L84C24).
+
+### How can I change the skin of a Shopkeeper
+We actually support a Skin System, please read up.
+
+### OMG I CAN'T ACCESS TO THE INVENTORYM uyigqwieduwefibef
+If the Shopkeeper is an Admin Shop it does not have an inventory!
 
 ## Bug reporting
 Reporting bugs ~~to developers~~ to the developer😢 is very important to ensure the stability of the plugin, so in order to better track and manage all reports it is **incredibly necessary** that they are reported via [GitHub Issues](https://github.com/FoxWorn3365/Shopkeepers/issues).<br>
@@ -87,7 +116,7 @@ Here is what to include in the reporting to make it perfect:
 4. (OPTIONAL) The plugin download source
 > Knowing where you downloaded the plugin from might help, always better to know some information
 5. (OPTIONAL) The `Shopkeepers.phar`
-> "Last wade," in case we can analyze the source
+> "Last wade", in case we can analyze the source
 
 ## Contribution guide
 Any contribution is greatly appreciated because you help me to lighten my workload, so here are some small guidelines to follow when you want to contribute:
@@ -240,6 +269,7 @@ Also [this plugin](https://github.com/FrozenArea/TradeAPI) helped me!
 - [x] Shopkeeper's inventory updating when players buy
 - [x] Shopkeeper deny a trade if the inventory is without the item
 - [x] Double trade
+- [x] Skin system
 - [ ] Online shopkeeper editor
 - [ ] Online shopkeeper shop (yes, you will be able to make shopping from your phone on the subway!)
 
