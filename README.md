@@ -22,7 +22,7 @@
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
 ## Introduction video
-<a href='https://www.youtube.com/watch?v=sustUWTgmMo'>Watch the video on YouTube</a>
+<a href='https://youtu.be/FIAcOnTyW_Y'>Watch the video on YouTube</a>
 
 ## Features
 - Players can create theyr own Shopkeepers and manage it
