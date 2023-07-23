@@ -31,7 +31,7 @@ class ElementContainer {
     protected array $elements = [];
     public ListTag $nbt;
 
-    public function add(Item|string $sell, Item|string $buy, array $inventory, bool $admin = false) : void {
+    public function add(Item|string $sell, Item|string $buy, array $inventory, bool $admin = false, Item|string $buy2 = null) : void {
         $tag = CompoundTag::create();
 
         // Simple tag management to optimize the speed. Anyways the system will give always a string so it's kida useless
@@ -39,6 +39,14 @@ class ElementContainer {
             $tag->setTag("buyA", $buy->nbtSerialize(-1));
         } else {
             $tag->setTag("buyA", NbtManager::partialDecode($buy));
+        }
+        
+        if ($buy2 !== null) {
+            if ($buy2 instanceof Item) {
+                $tag->setTag("buyB", $buy2->nbtSerialize(-1));
+            } else {
+                $tag->setTag("buyB", NbtManager::partialDecode($buy2));
+            }
         }
 
         if ($sell instanceof Item) {
@@ -80,6 +88,7 @@ class ElementContainer {
         $tag->setInt("demand", 1);
         $tag->setInt("traderExp", 0);
         $tag->setInt("priceMultiplierA", 0.0);
+        $tag->setInt("priceMultiplierB", 0.0);
         $this->elements[] = $tag;
     }
 

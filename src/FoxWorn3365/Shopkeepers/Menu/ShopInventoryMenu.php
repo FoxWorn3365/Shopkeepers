@@ -45,7 +45,7 @@ class ShopInventoryMenu {
     }
 
     public function create() : InvMenu {
-        $this->menu->setName("Editing {$this->cm->getSingleKey()}'s inventory...");
+        $this->menu->setName("§c§lInventory §r§l- §r{$this->cm->getSingleKey()}");
         $inventory = $this->menu->getInventory();
         // First, let's import the inventory
         foreach ($this->config->inventory as $slot => $item) {

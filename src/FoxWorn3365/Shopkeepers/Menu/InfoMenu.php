@@ -39,7 +39,7 @@ class InfoMenu {
     }
 
     public function create(Player $player, string $basedir) : InvMenu {
-        $this->menu->setName("Welcome to Shopkeepers");
+        $this->menu->setName("§b§lShopkeepers");
         $inventory = $this->menu->getInventory();
 
         // Draw the upper and downer line

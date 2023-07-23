@@ -47,7 +47,7 @@ class ShopConfigMenu {
     }
 
     public function create() : InvMenu {
-        $this->menu->setName("Edit shop {$this->cm->getSingleKey()}");
+        $this->menu->setName("§6§lConfig §r§l- §r{$this->cm->getSingleKey()}");
         $inventory = $this->menu->getInventory();
 
         // Draw the upper and downer line

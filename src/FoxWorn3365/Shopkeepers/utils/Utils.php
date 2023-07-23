@@ -112,12 +112,31 @@ final class Utils {
 				// Oh shit is not array!
 				if (gettype($shop->inventory) === 'object') {
 					self::errorLogger($data_dir, "NOTICE", "Value of 'inventory' inside shop '{$name}', file '{$file}' is an object! Corrected");
-					$shop->inventory = (array)$shop->inventory;
+					$it = [];
+					foreach ($shop->inventory as $item) {
+						$it[] = $item;
+					}
+					$shop->inventory = $it;
 				} else {
 					self::errorLogger($data_dir, "WARNING", "Value of 'inventory' inside shop '{$name}', file '{$file}' is not a correct value! Neutralized");
 					$shop->inventory = [];
 				}
 			}
+
+			// Validate and add if not present the history camp
+			if (@$shop->history === null) {
+				$shop->history = "";
+			} elseif (gettype($shop->history) !== 'string') {
+				$shop->history = "";
+			}
+
+			// Validate and add if not present the enabled camp
+			if (@$shop->enabled === null) {
+				$shop->enabled = true;
+			} elseif (gettype($shop->enabled) !== 'bool') {
+				$shop->enabled = true;
+			}
+
 			// Update the shop
 			$end->{$name} = $shop;
 		}
@@ -128,6 +147,14 @@ final class Utils {
 		foreach ($items as $item) {
 			if (SerializedItem::decode($item->buy)->equals($buy) && SerializedItem::decode($item->sell)->getCount() === $sellcount) {
 				return $item->sell;
+			}
+		}
+	}
+
+	public static function entityFixer(string $data_dir, object|array $data) : void {
+		if (gettype($data) !== 'array') {
+			if (gettype($data) === 'object') {
+				file_put_contents($data_dir, (array)$data);
 			}
 		}
 	}
