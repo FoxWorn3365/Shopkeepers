@@ -1,16 +1,16 @@
 name: Shopkeepers
-version: 0.9.1
+version: 1.0.0
 api: 4.0.0
 
 main: FoxWorn3365\Shopkeepers\Core
 author: FoxWorn3365
 website: https://github.com/FoxWorn3365/Shopkeepers
-description: Add shopkeepers to your PocketMine server!
+description: Add Shopkeepers to your PocketMine server!
 
 commands:
   shopkeepers:
     description: The main shopkeepers command
-    usage: "/shopkeepers [list|create|summon|rename|edit|info] <NAME>"
+    usage: "/shopkeepers [list|create|summon|rename|edit|info|history] <NAME>"
     aliases:
       - sk
       - shopk
@@ -42,6 +42,12 @@ permissions:
     default: true
   shopkeepers.shop.namevisible:
     description: "Allow users to decide if the shopkepeer's name should be visible or no"
+    default: true
+  shopkeepers.shop.history:
+    description: "Allow users to view the trade history of his Shopkeepers"
+    default: true
+  shopkeepers.shop.enableDisable:
+    description: "Allow users to enable and disable their own Shopkeepers from the menu"
     default: true
   shopkeepers.shop.admin:
     description: "Allows users to decide if the shopkeepers should be admin or none"

@@ -23,7 +23,9 @@ use pocketmine\player\Player;
 use pocketmine\entity\Location;
 use pocketmine\Server;
 
+use FoxWorn3365\Shopkeepers\utils\SkinUtils;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
+use FoxWorn3365\Shopkeepers\entity\HumanShopkeeper;
 
 class EntityManager {
     protected string $base;
@@ -49,7 +51,7 @@ class EntityManager {
         }
     }
 
-    public function add(Shopkeeper $shop) : void {
+    public function add(Shopkeeper|HumanShopkeeper $shop) : void {
         // x, y, yw, z, pitch, world, (base64)data
         //$this->elements[] = "{$shop->getLocation()->getX()},{$shop->getLocation()->getY()},{$shop->getLocation()->getYaw()},{$shop->getLocation()->getZ()},{$shop->getLocation()->getPitch()},{$shop->getWorld()->getId()}," . base64_encode(json_encode($shop->getConfig()));
         $this->elements[] = $this->generateEntityHash($shop);
@@ -61,17 +63,7 @@ class EntityManager {
         return $this->elements[$slot];
     }
 
-    public function loadAll(Server $server) : void {
-        foreach ($this->elements as $data) {
-            $data = explode(",", $data);
-            $location = new Location($data[0], $data[1], $data[3], $server->getWorldManager()->getWorld($data[5]), $data[2], $data[4]);
-            $shopkeeper = new Shopkeeper($location);
-            $shopkeeper->setConfig(json_decode(base64_decode($data[6])));
-            $shopkeeper->spawnToAll();
-        }
-    }
-
-    public function generateEntityHash(Shopkeeper $shop) : string {
+    public function generateEntityHash(Shopkeeper|HumanShopkeeper $shop) : string {
         // GitHub user: "Use object plz"
         // Me: okok i'll do it    AND NOW ITZ TIMW!
         return base64_encode(json_encode([
@@ -128,10 +120,15 @@ class EntityManager {
         }
     }
 
-    protected static function createEntity(string $rawdata, Server $server) : Shopkeeper {
+    protected static function createEntity(string $rawdata, Server $server) : Shopkeeper|HumanShopkeeper {
         $data = (object)json_decode(base64_decode($rawdata));
         $location = new Location($data->x, $data->y, $data->z, $server->getWorldManager()->getWorld($data->world), $data->yaw, $data->pitch);
-        $entity = new Shopkeeper($location, json_decode(base64_decode($data->config)), $data->id);
+        if (SkinUtils::find(json_decode(base64_decode($data->config))->shop, json_decode(base64_decode($data->config))->author, $server->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder())) {
+            $skin = SkinUtils::load(json_decode(base64_decode($data->config))->shop, json_decode(base64_decode($data->config))->author, $server->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder());
+            $entity = new HumanShopkeeper($location, $skin, json_decode(base64_decode($data->config)), $data->id);
+        } else {
+            $entity = new Shopkeeper($location, json_decode(base64_decode($data->config)), $data->id);
+        }
         $tags = json_decode(base64_decode($data->nametag));
         $entity->setNameTag($tags->tag);
         $entity->setNameTagAlwaysVisible($tags->visible);

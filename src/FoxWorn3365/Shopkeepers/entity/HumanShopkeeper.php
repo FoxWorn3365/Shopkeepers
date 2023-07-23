@@ -14,23 +14,24 @@
  * - Contribution guidelines: https://github.com/FoxWorn3365/Shopkeepers#contributing
  * - Author GitHub: https://github.com/FoxWorn3365
  * 
- * Current file: /entity/Shopkeeper.php
- * Description: The plugin's custom entity, useful because of the local data saved in Shopkeeper::$shopconfig
+ * Current file: /entity/HumanShopkeeper.php
+ * Description: The plugin's 2nd custom entity, useful because of the local data saved in HumanShopkeeper::$shopconfig.
+ *              This entity, because it's an Human does support skin!
  */
 
 namespace FoxWorn3365\Shopkeepers\entity;
 
-use pocketmine\entity\Villager;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
 use pocketmine\entity\EntitySizeInfo;
+use pocketmine\entity\Skin;
 
-class Shopkeeper extends Villager {
+class HumanShopkeeper extends Human {
     public ?object $shopconfig = null;
     public ?int $customShopkeeperEntityId = null;
 
-    public function __construct(Location $loc, ?object $generalizedConfig = null, ?int $customId = null) {
-        parent::__construct($loc, null);
+    public function __construct(Location $loc, Skin $skin, ?object $generalizedConfig = null, ?int $customId = null) {
+        parent::__construct($loc, $skin, null);
 
         $this->setCanSaveWithChunk(false);
 
