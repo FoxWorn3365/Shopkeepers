@@ -25,12 +25,14 @@
 <a href='https://youtu.be/FIAcOnTyW_Y'>Watch the video on YouTube</a>
 
 ## Features
-- Players can create theyr own Shopkeepers and manage it
+- Players can create their own Shopkeepers and manage it
 - Admin Shopkeepers
 - Vanilla trade page
 - Shopkeeper inventory for non-admin Shopkeepers
 - Hit prevention for shopkeepers
 - Easy configuration with in-game GUI
+- Double trade supported
+- Custom skin support
 
 ## Compatibility
 **Shopkeepers** is made to be multi-version, in fact I announce with great joy that the plugin is available for both PocketMine-MP 5 and PocketMine-MP 4!
