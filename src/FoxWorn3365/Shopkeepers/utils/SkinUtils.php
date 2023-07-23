@@ -16,7 +16,7 @@
  * 
  * Current file: /utils/Draw.php
  * STATIC CLASS
- * Description: Implements simple drawing tools like Paint (NOT 3D!!!)
+ * Description: Implements an easy way to manage skins using Himbeer\LibSkin\SkinConverter
  */
 
 namespace FoxWorn3365\Shopkeepers\utils;
