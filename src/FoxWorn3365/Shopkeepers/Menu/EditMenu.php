@@ -46,7 +46,7 @@ class EditMenu {
     }
 
     public function create() : InvMenu {
-        $this->menu->setName("Edit shop {$this->config->title}");
+        $this->menu->setName("§l§bTrades §r§l- §r{$this->config->title}");
         // LAST SLOT: 26
         $slotcount = 9;
         $defaultconfig = (object)[
@@ -82,17 +82,24 @@ class EditMenu {
             if ($itemconstructor->getVanillaName() == 'Stained Glass Pane') {
                 $displayname = "No item set!";
                 $setname = "Nothing";
+                $displaycount = "";
             } else {
                 $displayname = $itemconstructor->getVanillaName();
+                $displaycount = $itemconstructor->getCount() . ' ';
                 // Load buy block and add to the description
                 if (@$bk->buy !== null) {
                     $buy = SerializedItem::decode($bk->buy);
-                    $setname = "{$buy->getCount()} {$buy->getName()}";
+                    $setname = "§l{$buy->getCount()} §r{$buy->getName()}";
                 } else {
                     $setname = "Nothing!";
                 }
+
+                if (@$bk->buy2 !== null) {
+                    $buy2 = SerializedItem::decode($bk->buy2);
+                    $setname = "{$setname} and for §l{$buy2->getCount()} §r{$buy2->getName()}";
+                }
             }
-            $itemconstructor->setCustomName("§r{$displayname}\nSold for: {$setname}");
+            $itemconstructor->setCustomName("§r§l{$displaycount}{$displayname}\n\n§r§oSold for:§r {$setname}");
             $itemmenu = Utils::getIntItem(35, 1);
             $itemmenu->setCustomName("§rEdit this item");
             $this->menu->getInventory()->setItem($slotcount, $itemconstructor);

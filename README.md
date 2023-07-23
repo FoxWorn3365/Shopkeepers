@@ -200,13 +200,16 @@ Now, let's see the object:
 ```json
 {
     "author":"<PlayerNAME>",
+    "enabled":true,
     "admin":false,
     "title":"<ShopNAME>",
     "namevisible":false,
+    "history":base64EncodedHistoryOfTransactions,
     "inventory":[],
     "items":[
         {
             "buy":nbtSerializedItem,
+            "buy2":?nbtSerializedItem,
             "sell":nbtSerializedItem
         }
     ]
@@ -215,9 +218,11 @@ Now, let's see the object:
 | Name | Type | Description |
 | --- | --- | --- |
 | author | string | The username of the shop author |
+| enabled | bool | Is the shop enabled? This option can be changed by the player in the menu config |
 | admin | bool | If the shop is an Admin shop, so you don't have to put items in the inventory and you won't earn anything |
 | title | string | The real name of the shop |
 | namevisible | bool | Should the shop name be visible when summoned? |
+| history | string | A base64 encoded string with all the transactions |
 | inventory | array | The inventory of the shop |
 | items | array | A list of all recepies (max 9) |
 
@@ -234,6 +239,7 @@ Also [this plugin](https://github.com/FrozenArea/TradeAPI) helped me!
 - [x] Player shop
 - [x] Shopkeeper's inventory updating when players buy
 - [x] Shopkeeper deny a trade if the inventory is without the item
+- [x] Double trade
 - [ ] Online shopkeeper editor
 - [ ] Online shopkeeper shop (yes, you will be able to make shopping from your phone on the subway!)
 

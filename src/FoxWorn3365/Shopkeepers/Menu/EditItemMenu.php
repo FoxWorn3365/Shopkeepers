@@ -84,8 +84,9 @@ class EditItemMenu {
         $slot->sellsign = 12;
         $slot->buysign = 9;
 
-        $sell = $object->sell;
-        $buy = $object->buy;
+        $sell = @$object->sell;
+        $buy = @$object->buy;
+        $buy2 = @$object->buy2;
         $signsell = Factory::sign(4, 'Put what do you want to sell to my right!');
         $signbuy = Factory::sign(4, 'Put what do you want to buy to my right!');
 
@@ -103,6 +104,12 @@ class EditItemMenu {
             $buyitem = SerializedItem::decode($buy);
         }
 
+        if ($buy2 === null) {
+            $buyitem2 = VanillaItems::AIR();
+        } else {
+            $buyitem2 = SerializedItem::decode($buy2);
+        }
+
         // Now load simple screen
         $this->menu->setName("Editing shop {$this->config->title}");
         $this->menu->getInventory()->setItem(17, Factory::item(160, 14, "Delete the item"));
@@ -111,13 +118,18 @@ class EditItemMenu {
         $this->menu->getInventory()->setItem(1, Factory::item(35, 13, "+1"));
         $this->menu->getInventory()->setItem(19, Factory::item(35, 14, "-1"));
 
+        // 2nd buy qta increasator and decreasator
+        $this->menu->getInventory()->setItem(2, Factory::item(35, 13, "+1"));
+        $this->menu->getInventory()->setItem(20, Factory::item(35, 14, "-1"));
+
         // Sell qta increasator and decreasator
-        $this->menu->getInventory()->setItem(4, Factory::item(35, 13, "+1"));
-        $this->menu->getInventory()->setItem(22, Factory::item(35, 14, "-1"));
+        $this->menu->getInventory()->setItem(5, Factory::item(35, 13, "+1"));
+        $this->menu->getInventory()->setItem(23, Factory::item(35, 14, "-1"));
 
         // Put data
         $this->menu->getInventory()->setItem(10, $buyitem);
-        $this->menu->getInventory()->setItem(13, $sellitem);
+        $this->menu->getInventory()->setItem(11, $buyitem2);
+        $this->menu->getInventory()->setItem(14, $sellitem);
 
         $cm = $this->cm;
         $config = $this->config;
@@ -163,23 +175,43 @@ class EditItemMenu {
                         $object->buy = SerializedItem::encode($item);
                     }
                     break;
-                case 4: 
-                    $item = $inventory->getItem(13);
+                case 2:
+                    $item = $inventory->getItem(11);
+                    if ($item->getCount() + 1 > 64) {
+                        $transaction->getPlayer()->sendMessage("§cYou can't sell an item for more than 64 items!");
+                    } else {
+                        $item->setCount($item->getCount()+1);
+                        $inventory->setItem(11, $item);
+                        $object->buy2 = SerializedItem::encode($item);
+                    }
+                    break;
+                case 20:
+                    $item = $inventory->getItem(11);
+                    if ($item->getCount()-1 < 1) {
+                        $transaction->getPlayer()->sendMessage("§cYou can't sell an item for less than 1 item!");
+                    } else {
+                        $item->setCount($item->getCount()-1);
+                        $inventory->setItem(11, $item);
+                        $object->buy2 = SerializedItem::encode($item);
+                    }
+                    break;
+                case 5: 
+                    $item = $inventory->getItem(14);
                     if ($item->getCount()+1 > 64) {
                         $transaction->getPlayer()->sendMessage("§cYou can't sell more than 64 items!");
                     } else {
                         $item->setCount($item->getCount()+1);
-                        $inventory->setItem(13, $item);
+                        $inventory->setItem(14, $item);
                         $object->sell = SerializedItem::encode($item);
                     }
                     break;
-                case 22:
-                    $item = $inventory->getItem(13);
+                case 23:
+                    $item = $inventory->getItem(14);
                     if ($item->getCount()-1 < 1) {
                         $transaction->getPlayer()->sendMessage("§cYou can't sell less than 1 item!");
                     } else {
                         $item->setCount($item->getCount()-1);
-                        $inventory->setItem(13, $item);
+                        $inventory->setItem(14, $item);
                         $object->sell = SerializedItem::encode($item);
                     }
                     break;
@@ -193,14 +225,33 @@ class EditItemMenu {
                         $inventory->setItem(10, $transaction->getItemClickedWith());
                     }
                     break;
-                case 13:
+                case 14:
                     if ($transaction->getItemClickedWith() !== null && $transaction->getItemClickedWith() != VanillaItems::AIR()) {
                         // Let's change the object also in the inventory
-                        $inventory->clear(13);
+                        $inventory->clear(14);
                         // Now let's decode the item
                         $object->sell = SerializedItem::encode($transaction->getItemClickedWith());
                         usleep(5000);
-                        $inventory->setItem(13, $transaction->getItemClickedWith());
+                        $inventory->setItem(14, $transaction->getItemClickedWith());
+                    }
+                    break;
+                case 11:
+                    $presence = $inventory->getItem(10);
+                    if ($presence === VanillaItems::AIR() || $presence === null) {
+                        $transaction->getPlayer()->sendMessage("§4Sorry but you cannot cannot set the first buy item!");
+                        break;
+                    }
+
+                    if ($transaction->getItemClickedWith() !== null && $transaction->getItemClickedWith() != VanillaItems::AIR()) {
+                        // Let's change the object also in the inventory
+                        $inventory->clear(11);
+                        // Now let's decode the item
+                        $object->buy2 = SerializedItem::encode($transaction->getItemClickedWith());
+                        usleep(5000);
+                        $inventory->setItem(11, $transaction->getItemClickedWith());
+                    } elseif ($transaction->getItemClickedWith() === null || $transaction->getItemClickedWith() === VanillaItems::AIR()) {
+                        $object->buy2 = null;
+                        $inventory->clear(11);
                     }
                     break;
             }

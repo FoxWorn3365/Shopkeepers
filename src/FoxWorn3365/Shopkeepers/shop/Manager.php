@@ -53,7 +53,7 @@ class Manager {
             if (!(!empty($itemconfig->sell) && !empty($itemconfig->buy)) && gettype($this->config->inventory) !== 'array') {
                 continue;
             }
-            $this->container->add($itemconfig->sell, $itemconfig->buy, $this->config->inventory, $this->config->admin);
+            $this->container->add($itemconfig->sell, @$itemconfig->buy, $this->config->inventory, $this->config->admin, @$itemconfig->buy2);
         }
         
         $shop = new Shop($this->container->toNBT(), $player, $entity, $this->config->title);

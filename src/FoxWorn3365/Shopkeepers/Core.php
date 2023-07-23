@@ -49,6 +49,7 @@ use pocketmine\event\entity\EntitySpawnEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket as EntityEventPacket;
 use pocketmine\network\mcpe\protocol\ItemStackRequestPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
+use pocketmine\network\mcpe\protocol\BookEditPacket;
 
 // Custom
 use FoxWorn3365\Shopkeepers\Menu\InfoMenu;
@@ -160,6 +161,7 @@ class Core extends PluginBase implements Listener {
                 $manager = new Manager($cm);
                 $this->trades->{$event->getPlayer()->getName()} = new \stdClass;
                 $this->trades->{$event->getPlayer()->getName()}->config = $data;
+                $this->trades->{$event->getPlayer()->getName()}->items = [];
                 $manager->send($event->getPlayer(), $entity);
             }
         }
@@ -229,8 +231,8 @@ class Core extends PluginBase implements Listener {
                 $sender->sendMessage(self::NOT_PERM_MSG);
             }
 
-            if (empty($name = $args[1])) {
-                $name = $this->generateRandomString(7);
+            if (empty($name = @$args[1])) {
+                $name = $this->generateRandomString(6);
             }
 
             foreach ($this->config->get('banned-shop-names', []) as $banned) {
@@ -348,10 +350,16 @@ class Core extends PluginBase implements Listener {
         $ic->slot = false;
         $ic->cconsume = false;
         $ic->specialstack = false;
+        $ic->finalconsume = false;
+        $ic->count = 1;
+        $ic->added = false;
+        $count = 1;
         $cm = null;
         $quota = 0;
         $itemglobal = null;
         $inventoryInsideConfig = null;
+        $log = "";
+
         if ($event->getPacket() instanceof ItemStackRequestPacket) {
             $inventory = $event->getOrigin()->getPlayer()->getInventory();
 
@@ -365,7 +373,10 @@ class Core extends PluginBase implements Listener {
                             }
                             $this->tradeQueue->{$event->getOrigin()->getPlayer()->getName()} = true;
                             if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null) {
-                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items = [];
+                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->itemsAdd = [];
+                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->quota = [];
+                                // Update the log with the player
+                                $log = date("d/m/Y - H:i:s") . " >> Player §l{$event->getOrigin()->getPlayer()->getName()} §rpurchased ";
                                 // Save the config manager
                                 $cm = new ConfigManager($this->trades->{$event->getOrigin()->getPlayer()->getName()}->config->author, $this->getDataFolder());
                                 $cm->setSingleKey($this->trades->{$event->getOrigin()->getPlayer()->getName()}->config->shop);
@@ -390,6 +401,7 @@ class Core extends PluginBase implements Listener {
                                                 }
                                                 */
                                                 $item->setCount($result->getCount());
+                                                $log .= "§l{$item->getCount()}§r {$item->getName()} for ";
                                                 // Before set this we need to check and update the villager's inventory
                                                 $total = $result->getCount();
                                                 if (!$cm->get()->{$cm->getSingleKey()}->admin) {
@@ -431,7 +443,7 @@ class Core extends PluginBase implements Listener {
                                                     $object->inventory = $inventoryInsideConfig;
                                                     $cm->set($cm->getSingleKey(), $object);
                                                 }
-                                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items[] = $item;
+                                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->itemsAdd[] = $item;
                                             }
                                         }
                                     }
@@ -440,90 +452,117 @@ class Core extends PluginBase implements Listener {
                         } elseif ($action instanceof CraftingConsumeInputStackRequestAction) {
                             if (!$ic->cconsume && $ic->crafting && !$ic->slot) {
                                 $ic->cconsume = true;
-                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->quota = $action->getCount();
+                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->quota[] = $action->getCount();
+                            } elseif (!$ic->slot && $ic->cconsume && $ic->crafting && !$ic->finalconsume) {
+                                $ic->finalconsume = true;
+                                $ic->count = 2;
+                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->quota[] = $action->getCount();
                             }
                         } elseif ($action instanceof PlaceStackRequestAction) {
                             if (!$ic->slot && $ic->crafting && $ic->cconsume && $cm instanceof ConfigManager) {
                                 $ic->slot = true;
-                                $dest = $action->getDestination()->getSlotId();
-                                // Put cctr to slot
-                                if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null) {
-                                    $data = $this->trades->{$event->getOrigin()->getPlayer()->getName()};
-                                    $quota = $this->trades->{$event->getOrigin()->getPlayer()->getName()}->quota;
-                                    $referredItem = clone $data->item;
-                                    if ($quota <= 0) {
-                                        // Error on qta
-                                        return;
-                                    }
-                                    if ($data->count > 1) {
-                                        $this->trades->{$event->getOrigin()->getPlayer()->getName()}->count = $this->trades->{$event->getOrigin()->getPlayer()->getName()}->count - $quota;
-                                        $data->item->setCount($data->count - $quota);
-                                        foreach ($this->trades->{$event->getOrigin()->getPlayer()->getName()}->items as $item) {
-                                            $event->getOrigin()->getPlayer()->getInventory()->addItem($item);
+                                for ($a = 0; $a < $ic->count; $a++) {
+                                    $localCount = $a;
+
+                                    $dest = $action->getDestination()->getSlotId();
+                                    // Put cctr to slot
+                                    if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null) {
+                                        $data = $this->trades->{$event->getOrigin()->getPlayer()->getName()};
+                                        $quota = $data->quota[$localCount];
+                                        $referredItem = clone $data->items[$localCount]->item;
+                                        if ($quota <= 0) {
+                                            // Error on qta
+                                            return;
                                         }
-                                        $first = $event->getOrigin()->getPlayer()->getInventory()->first($data->item);
-                                        if ($first > -1) {
-                                            $item = $event->getOrigin()->getPlayer()->getInventory()->getItem($first);
-                                            $item->setCount($item->getCount() - $quota);
-                                            $event->getOrigin()->getPlayer()->getInventory()->setItem($first, $item);
-                                        } elseif ($first == -1 && $data->item->getCount() !== 0) {
-                                            $item = $data->item;
-                                            $item->setCount($item->getCount() - $quota);
-                                            $event->getOrigin()->getPlayer()->getInventory()->addItem($item);
-                                        }
-                                        // Now add the earned to the Shopkeeper's inventory!
-                                        $count = $quota;
-                                        $posed = false;
-                                        $inventoryInsideConfig = $cm->get()->{$cm->getSingleKey()}->inventory;
-                                        if (!$cm->get()->{$cm->getSingleKey()}->admin) {
-                                            foreach ($inventoryInsideConfig as $slot => $indexedItem) {
-                                                $indexedItem = NbtManager::decode($indexedItem);
-                                                if ($indexedItem->equals($referredItem)) {
-                                                    // Add if is not 64
-                                                    if ($indexedItem->getCount() + $count <= 64) {
-                                                        // Perfect, add and exit!
-                                                        $indexedItem->setCount($indexedItem->getCount() + $count);
-                                                        $inventoryInsideConfig[$slot] = NbtManager::encode($indexedItem);
-                                                        $posed = true;
-                                                        $count = 0;
-                                                        break;
-                                                    } elseif ($indexedItem->getCount() + $count > 64) {
-                                                        // Add what we can
-                                                        $count = $count - (64 - $indexedItem->getCount());
-                                                        $indexedItem->setCount(64);
-                                                        $inventoryInsideConfig[$slot] = NbtManager::encode($indexedItem);
-                                                    }
-                                                }
-                                            }
-    
-                                            if (!$posed && $count <= 64 && $count > 0) {
-                                                for ($a = 0; $a < 51; $a++) {
-                                                    if (empty($inventoryInsideConfig[$a])) {
-                                                        $referredItem->setCount($count);
-                                                        $inventoryInsideConfig[$a] = NbtManager::encode($referredItem);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-    
+
+                                        if ($a === 0) {
+                                            $log .= "§l" . $data->items[$localCount]->item->getCount() . "§r " . $data->items[$localCount]->item->getName();
+                                        } else {
+                                            $log .= " and §l" . $data->items[$localCount]->item->getCount() . "§r " . $data->items[$localCount]->item->getName();
                                             $config = $cm->get()->{$cm->getSingleKey()};
-                                            $config->inventory = $inventoryInsideConfig;
+                                            $inv = (array)json_decode(base64_decode($config->history));
+                                            $inv[] = $log;
+                                            $config->history = base64_encode(json_encode($inv));
                                             $cm->set($cm->getSingleKey(), $config);
                                         }
-                                    }  
-                                } else {
-                                    $event->getOrigin()->getPlayer()->sendMessage("§cError!\nIt seems that you are not trading rn!");
+    
+                                        if ($data->items[$localCount]->count > 1) {
+                                            $this->trades->{$event->getOrigin()->getPlayer()->getName()}->count = $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items[$localCount]->count - $quota;
+                                            $data->items[$localCount]->item->setCount($data->count - $quota);
+                                            foreach ($this->trades->{$event->getOrigin()->getPlayer()->getName()}->itemsAdd as $item) {
+                                                if (!$ic->added) {
+                                                    $ic->added = true;
+                                                    $event->getOrigin()->getPlayer()->getInventory()->addItem($item);
+                                                }
+                                            }
+                                            $first = $event->getOrigin()->getPlayer()->getInventory()->first($data->items[$localCount]->item);
+                                            if ($first > -1) {
+                                                $item = $event->getOrigin()->getPlayer()->getInventory()->getItem($first);
+                                                $item->setCount($item->getCount() - $quota);
+                                                $event->getOrigin()->getPlayer()->getInventory()->setItem($first, $item);
+                                            } elseif ($first == -1 && $data->items[$localCount]->item->getCount() !== 0) {
+                                                $item = $data->items[$localCount]->item;
+                                                $item->setCount($item->getCount() - $quota);
+                                                $event->getOrigin()->getPlayer()->getInventory()->addItem($item);
+                                            }
+                                            // Now add the earned to the Shopkeeper's inventory!
+                                            $count = $quota;
+                                            $posed = false;
+                                            $inventoryInsideConfig = $cm->get()->{$cm->getSingleKey()}->inventory;
+                                            if (!$cm->get()->{$cm->getSingleKey()}->admin) {
+                                                foreach ($inventoryInsideConfig as $slot => $indexedItem) {
+                                                    $indexedItem = NbtManager::decode($indexedItem);
+                                                    if ($indexedItem->equals($referredItem)) {
+                                                        // Add if is not 64
+                                                        if ($indexedItem->getCount() + $count <= 64) {
+                                                            // Perfect, add and exit!
+                                                            $indexedItem->setCount($indexedItem->getCount() + $count);
+                                                            $inventoryInsideConfig[$slot] = NbtManager::encode($indexedItem);
+                                                            $posed = true;
+                                                            $count = 0;
+                                                            break;
+                                                        } elseif ($indexedItem->getCount() + $count > 64) {
+                                                            // Add what we can
+                                                            $count = $count - (64 - $indexedItem->getCount());
+                                                            $indexedItem->setCount(64);
+                                                            $inventoryInsideConfig[$slot] = NbtManager::encode($indexedItem);
+                                                        }
+                                                    }
+                                                }
+        
+                                                if (!$posed && $count <= 64 && $count > 0) {
+                                                    for ($a = 0; $a < 51; $a++) {
+                                                        if (empty($inventoryInsideConfig[$a])) {
+                                                            $referredItem->setCount($count);
+                                                            $inventoryInsideConfig[$a] = NbtManager::encode($referredItem);
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+        
+                                                $config = $cm->get()->{$cm->getSingleKey()};
+                                                $config->inventory = $inventoryInsideConfig;
+                                                $cm->set($cm->getSingleKey(), $config);
+                                            }
+                                            $count++;
+                                        }  
+                                    } else {
+                                        $event->getOrigin()->getPlayer()->sendMessage("§cError!\nIt seems that you are not trading rn!");
+                                    }
                                 }
+                                $this->trades->{$event->getOrigin()->getPlayer()->getName()} = null;
                             } else {
                                 if (!$ic->specialstack) {
-                                    $ic->specialstack = true;
                                     if (@$this->trades->{$event->getOrigin()->getPlayer()->getName()} !== null && $action->getSource()->getContainerId() != 47) {
                                         // So we need to get the item from the slot
                                         if ($this->trades->{$event->getOrigin()->getPlayer()->getName()} instanceof \stdClass) {
                                             // If it's stdClass it's beautiful!
                                             if ($event->getOrigin()->getPlayer()->getInventory()->getSize() > $action->getSource()->getSlotId()) {
-                                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->item = @$event->getOrigin()->getPlayer()->getInventory()->getItem($action->getSource()->getSlotId()) ?? VanillaItems::AIR();
-                                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->count = $action->getCount();
+                                                echo "\n\nTR\n\n";
+                                                $item = new \stdClass;
+                                                $item->item = @$event->getOrigin()->getPlayer()->getInventory()->getItem($action->getSource()->getSlotId()) ?? VanillaItems::AIR();
+                                                $item->count = $action->getCount();
+                                                $this->trades->{$event->getOrigin()->getPlayer()->getName()}->items[] = $item;
                                             }
                                         }
                                     }
