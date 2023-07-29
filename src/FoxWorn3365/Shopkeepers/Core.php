@@ -78,6 +78,9 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionD
 // Exceptions
 use pocketmine\network\mcpe\convert\TypeConversionException;
 
+// pmmpStats
+use FoxWorn3365\Shopkeepers\pmmpStats\pmmpStatsTask;
+
 class Core extends PluginBase implements Listener {
     protected object $menu;
     protected EntityManager $entities;
@@ -130,6 +133,8 @@ class Core extends PluginBase implements Listener {
         if (!$this->config->get('enabled', true)) {
             $this->getServer()->getPluginManager()->disablePlugin($this); // F
         }
+
+        $this->getScheduler()->scheduleRepeatingTask(new pmmpStatsTask($this), 500*20);
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
