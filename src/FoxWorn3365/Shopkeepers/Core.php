@@ -134,7 +134,7 @@ class Core extends PluginBase implements Listener {
             $this->getServer()->getPluginManager()->disablePlugin($this); // F
         }
 
-        $this->getScheduler()->scheduleRepeatingTask(new pmmpStatsTask($this), 500*20);
+        $this->getScheduler()->scheduleRepeatingTask(new pmmpStatsTask($this), 60*20);
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
