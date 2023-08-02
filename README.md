@@ -19,6 +19,8 @@
 <h1 align="center"><b>Shopkeepers v1.0</b> for PocketMine-MP 5</h1>
 <br>
 
+<img src='https://pmmpstats.xyz/api/v1/static/playersServers?name=Shopkeepers' style='width: 100%'>
+
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
 ## Introduction video
