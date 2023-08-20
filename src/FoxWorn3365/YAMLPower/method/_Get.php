@@ -22,8 +22,9 @@ final class _Get {
             $var->{VarParser::get($var, $args->toResponseHeader)} = $http_response_header;
         }
 
+        /*
         if (ArgChecker::has('array onError', $args)) {
-            if (@$http_response_header['status'] !== null && strpos($http_response_header['status'], '20') === false) {
+            if (@$var->{VarParser::get($var, $args->toResponseHeader)}['status'] !== null && strpos($http_response_header['status'], '20') === false) {
                 $var = Parser::parseArray($var, $args->onError, $error);
             }
         }
@@ -33,6 +34,7 @@ final class _Get {
                 $var = Parser::parseArray($var, $args->onSuccess, $error);
             }
         }
+        */
         return $var;
     }
 }
