@@ -23,11 +23,13 @@ class Extension {
         return false;
     }
 
-    public function get(string $name) : object {
-        if (@$this->extensions->{$name} !== null) {
+    public function get(string $name) : object|null {
+        if (@$this->extensions->{$name} === null) {
+            $this->error->throw('methodInClassNotFoundException', true);
+            return null;
+        } else {
             return $this->extensions->{$name};
         }
-        $this->error->throw('methodInClassNotFoundException', true);
     }
 
     public function getMethod(string $name) : object {

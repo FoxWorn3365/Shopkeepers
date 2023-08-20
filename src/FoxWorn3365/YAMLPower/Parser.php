@@ -56,16 +56,16 @@ class Parser {
                                 // Let's call the method using the methodizer
                                 $var = VarParser::methodizer($var->{$object[0]}, $object[1], $data, $var, $error);
                             }
-                        } elseif (in_array($loader, $ext->list)) {
+                        } elseif (in_array($loader, [])) {
                             $data->action = $object[1];
-                            $var = $ext->getMethod($object[0])->{$object[0] . '_executor'}($var, $data, $error);
+                            //$var = $ext->getMethod($object[0])->{$object[0] . '_executor'}($var, $data, $error);
                         }
                     } elseif (strpos($loader, ':') !== false) {
                         $object = explode(':', $loader);
                         // Is a static method created with other programs, let's parse with staticMethodizer!
                         $var = VarParser::staticMethodizer($var->{$object[0]}, $object[1], $data, $var, $error);
-                    } elseif (in_array($loader, $ext->list)) {
-                        $var = $ext->getMethod($loader)->{$loader . '_executor'}($var, $data, $error);
+                    } elseif (in_array($loader, [])) {
+                        //$var = $ext->getMethod($loader)->{$loader . '_executor'}($var, $data, $error);
                     }
                 }
             }

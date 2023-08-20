@@ -11,7 +11,9 @@ final class _Replace {
             foreach ($var as $name => $value) {
                 $string = str_replace($value, '{'.$name.'}', $string);
             }
+            $var->{$args[1]} = $string;
         }
-        $var->{$args[1]} = $string;
+
+        return $var;
     }
 }

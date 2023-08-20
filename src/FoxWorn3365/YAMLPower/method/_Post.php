@@ -35,6 +35,7 @@ final class _Post {
             $var->{$args->toHeader} = $http_response_header;
         }
 
+        /*
         if (ArgChecker::has('array onError', $args)) {
             if (@$http_response_header['status'] !== null && strpos($http_response_header['status'], '20') === false) {
                 $var = Parser::parseArray($var, $args->onError, $error);
@@ -46,6 +47,7 @@ final class _Post {
                 $var = Parser::parseArray($var, $args->onSuccess, $error);
             }
         }
+        */
         
         return $var;
     }
