@@ -26,7 +26,6 @@ class ConfigManager {
     protected Player|string $player;
     public string $dir;
     protected $key;
-    protected string $got;
 
     function __construct(Player|string $player, string $basedir) {
         if ($player instanceof Player) {

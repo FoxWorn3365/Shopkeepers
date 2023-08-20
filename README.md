@@ -16,12 +16,16 @@
 </p>
 
 ---
-<h1 align="center"><b>Shopkeepers v1.0</b> for PocketMine-MP 5</h1>
-<br>
+<h1 align="center"><b>Shopkeepers v1.2</b> for PocketMine-MP <b>5</b></h1>
 
+<br>
 <img src='https://pmmpstats.xyz/api/v1/static/playersServers?name=Shopkeepers' style='width: 100%'>
+<div align="center"><b>Shopkeepers</b> stats by <a href='https://pmmpstats.xyz'>pmmpStats</a></div>
+<br><br>
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
+
+> Follow me on [**Twitter**](https://twitter.com/FoxWorn3365) to remain updated!
 
 ## Introduction video
 <a href='https://youtu.be/FIAcOnTyW_Y'>Watch the video on YouTube</a>
@@ -36,20 +40,28 @@
 - Double trade supported
 - Custom skin support
 
+<p align="center">
+  <br>
+  <span>Please consider to</span>
+  <h1 align="center"><a href='https://www.paypal.com/donate/?hosted_button_id=LBPVAEL3RWHKQ'><b>SUPPORT MY WORK</b></a></h1>
+  <br>
+</p>
+
 ## Compatibility
-**Shopkeepers** is made to be multi-version, in fact I announce with great joy that the plugin is available for both PocketMine-MP 5 and PocketMine-MP 4!
-> **Warning**<br>
-> The Shopkeepers version for PocketMine-MP 4 is available exclusively here on GitHub since InvMenu has versions that are not compatible with each other!
-> The branch can be found [here](https://github.com/FoxWorn3365/Shopkeepers/tree/pmmp4)
+> **Warning**
+> As of **v1.2** we no longer support PocketMine-MP 4, this however does not mean that we will remove **v1.0** for PMMP4, in fact it will always remain available here on GitHub at [__this branch__](https://github.com/FoxWorn3365/Shopkeepers/tree/pmmp4)!
 
 ## Configuration
 The configuration of **Shopkeepers** allows you to customize some values to make it suitable for all servers.
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | enabled | bool | true | Is the plugin enabled? |
-| max-entities-for-player | int | 5 | Max shopkeeper's entities for one player (PER SHOP) |
+| max-entities-for-player | int | 3 | Max shopkeeper's entities for one player (PER SHOP) |
 | max-entities-bypass | array | [] | Player that can bypass this limitation |
 | banned-shop-names | array | [] | List of banned names |
+| banned-item-names | array | [] | List of banned items (can't be sold) |
+| banned-item-ids | array | [] | List of banned item ids (can't be sold) |
+| enable-remote-trade[🛈](#remote-trade) | bool | false | Allow player to use the /sk trade command |
 
 ## Commands
 The base command is `/shopkeepers` but you can also use `/sk`, `/skeepers` and `/shopk` as aliases.
@@ -64,6 +76,7 @@ Here a list of all commands that you can use:
 | rename | SHOP NAME and NEW NAME | [NOT AVAILABLE] Rename a current shop |
 | list | none | Show all of your shops |
 | history | SHOP NAME and PAGE | Show the trade history for the shopkeeper |
+| trade | SHOP AUTHOR NAME and SHOP NAME | Remotely trade with a shopkeeper |
 
 ## Shopkeepers Skin System (SSS)
 Yes, the v1.0 brought an epic function: now you can set a skin of a Shopkeeper.<br>
@@ -93,7 +106,7 @@ There are two ways:
 - Use the command `/sk info <SHOP NAME>` and then click on the chest!
 - Click on the Shopkeeper (Villager) entity and then click on the chest!
 
-### I want to access to the Shopkeeper's trade page but if i click the entity i access the inventory!
+### I want to access to the Shopkeeper's trade page but if i click the entity i access the shopkeeper's info page!
 Easy: shift and click on the Shopkeeper
 
 ### How to despawn a Shopkeeper
@@ -103,10 +116,23 @@ More easy: just hit it, it will die in only one hit!
 Edit the config of ClearLag changing to `false` [this option](https://github.com/tobiaskirchmaier/ClearLag/blob/03e2a03a5f8868216dfc89eb78f51523ff228d6b/resources/config.yml#L84C5-L84C24).
 
 ### How can I change the skin of a Shopkeeper
-We actually support a Skin System, please read up.
+We actually support a Skin System, please see [here](#shopkeepers-skin-system-sss)!
 
 ### OMG I CAN'T ACCESS TO THE INVENTORYM uyigqwieduwefibef
 If the Shopkeeper is an Admin Shop it does not have an inventory!
+
+## Maximum level of customization: program the plugin!
+The **v1.2** implements an incredible customization system: 🎉__programming!__🎉<br><br>
+So, from now you can **handle some Shopkeeper event!** but how?<br>
+Simple, you can code inside the config with the new parser [YAMLPower](https://github.com/FoxWorn3365/YAMLPower)!<br><br>
+Feel free to contact me with no problem for any questions, I'll respond within a day!
+
+## ⚠️ Unsable (BETA) features.
+Here will be listed every feature of the plugin who's not stable (so is in a BETA phase).<br>
+These features aren't active by default, you must edit the config to enable!<br>
+### Remote trade
+Remote trade is in a BETA phase because can use a lot of memory and CPU and can slow down the server.
+Enable the `enable-remote-trade` at your own risk!
 
 ## Bug reporting
 Reporting bugs ~~to developers~~ to the developer😢 is very important to ensure the stability of the plugin, so in order to better track and manage all reports it is **incredibly necessary** that they are reported via [GitHub Issues](https://github.com/FoxWorn3365/Shopkeepers/issues).<br>
@@ -209,6 +235,12 @@ permissions:
   shopkeepers.shop.namevisible:
     description: "Allow users to decide if the shopkepeer's name should be visible or no"
     default: true
+  shopkeepers.shop.history:
+    description: "Allow users to view the trade history of his Shopkeepers"
+    default: true
+  shopkeepers.shop.enableDisable:
+    description: "Allow users to enable and disable their own Shopkeepers from the menu"
+    default: true
   shopkeepers.shop.admin:
     description: "Allows users to decide if the shopkeepers should be admin or none"
     default: op
@@ -224,6 +256,9 @@ permissions:
   shopkeepers.shop.allowRemoteInventoryOpen:
     description: "Allow users to open a shopkeeper's inventory with the command /sk inventory"
     default: op
+  shopkeepers.shop.allowRemoteTrade:
+    description: "Allow users to remotely trade with a shopkeeper with the command /sk trade <author> <shop>"
+    default: true
 ```
 
 ## Developers: shop object
@@ -262,20 +297,6 @@ Now, let's see the object:
 ## Special thanks
 Thanks to [Muqsit](https://github.com/Muqsit) for the [InvMenu](https://github.com/Muqsit/InvMenu) virion who have contributed to the creation for this plugin!<br>
 Also [this plugin](https://github.com/FrozenArea/TradeAPI) helped me!
-
-## Roadmap
-- [x] Update the item object because now it's the old one
-- [x] Make if the ContainerClose packet is received unset the `$this->trades->{PLAYER}` object because otherwise is OP!
-- [x] Updated the item object with nbt
-- [x] Working Admin shop (without inventory)
-- [x] Inventory saving correctly 
-- [x] Player shop
-- [x] Shopkeeper's inventory updating when players buy
-- [x] Shopkeeper deny a trade if the inventory is without the item
-- [x] Double trade
-- [x] Skin system
-- [ ] Online shopkeeper editor
-- [ ] Online shopkeeper shop (yes, you will be able to make shopping from your phone on the subway!)
 
 ## Contacts
 You can contact me via:
