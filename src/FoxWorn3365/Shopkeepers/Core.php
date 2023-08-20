@@ -78,24 +78,47 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionD
 // Exceptions
 use pocketmine\network\mcpe\convert\TypeConversionException;
 
+// pmmpStats
+use FoxWorn3365\Shopkeepers\pmmpStats\pmmpStatsTask;
+
+// YAMLPower
+use FoxWorn3365\YAMLPower\Parser;
+
 class Core extends PluginBase implements Listener {
     protected object $menu;
     protected EntityManager $entities;
     protected object $trades;
     protected object $tradeQueue;
     protected object $handle;
+    
+    // YAML Code keystores
+    protected object $yamlHandler;
+    protected Parser $yaml;
+    protected static array $allowedYamlHandlers = [
+        'onShopkeeperTrade',
+        'onShopkeeperInteraction',
+        'onShopkeeperSummon',
+        'onShopkeeperKill',
+        'onShopkeeperStartup'
+    ];
 
-    protected string $defaultConfig = "IwojIFNob3BrZWVwZXJzIHYwLjkuMSBieSBGb3hXb3JtMzM2NQojIChDKSAyMDIzLW5vdyBGb3hXb3JuMzM2NQojIAojIFJlbGFzZWQgdW5kZXIgdGhlIEdQTC0zLjAgbGljZW5zZSAKIyBodHRwczovL2dpdGh1Yi5jb20vRm94V29ybjMzNjUvU2hvcGtlZXBlcnMvYmxvYi9tYWluL0xJQ0VOU0UKIwoKZW5hYmxlZDogdHJ1ZQoKIyBNYXggc2hvcGtlZXBlcidzIGVudGl0aWVzIGZvciBvbmUgcGxheWVyIChQRVIgU0hPUCkKbWF4LWVudGl0aWVzLWZvci1wbGF5ZXI6IDUKIyBQbGF5ZXIgdGhhdCBjYW4gYnlwYXNzIHRoaXMgbGltaXRhdGlvbgptYXgtZW50aXRpZXMtYnlwYXNzOgogIC0gWW91ck1pbmVjcmFmdFVzZXJuYW1lCgojIE1vZGVyYXRpb24gc2V0dGluZ3MgICAtIFRISVMgSVMgQSBDT05UQUlOIENPTkRJVElPTiBzbyBpZiB5b3Ugc2V0ICdwcm8nIGFsc28gbmFtZXMgbGlrZSAnYXByb24nLCAncHJvdG90eXB1cycsICdwcm90bycsICdwcm8nIGFuZCBpdCdzIGNhc2UgSU5TRU5TSVRJVkUKYmFubmVkLXNob3AtbmFtZXM6CiAgLSBoaXRsZXIKICAtIG5hemkKCiMgQmFubmVkIHNob3AgaXRlbSBuYW1lcyBzbyB0aGV5IGNhbid0IGJlIHNvbGQgb3IgYm91Z2h0CmJhbm5lZC1pdGVtLW5hbWVzOgogIC0gZGlhbW9uZF9heGUKCiMgQmFubmVkIGl0ZW0gSURzIApiYW5uZWQtaXRlbS1pZHM6CiAgLSAyNTU=";
+    // Config as base_64
+    protected string $defaultConfig = "IwojIFNob3BrZWVwZXJzIHYwLjkuMSBieSBGb3hXb3JtMzM2NQojIChDKSAyMDIzLW5vdyBGb3hXb3JuMzM2NQojIAojIFJlbGFzZWQgdW5kZXIgdGhlIEdQTC0zLjAgbGljZW5zZSAKIyBodHRwczovL2dpdGh1Yi5jb20vRm94V29ybjMzNjUvU2hvcGtlZXBlcnMvYmxvYi9tYWluL0xJQ0VOU0UKIwoKZW5hYmxlZDogdHJ1ZQoKIyBNYXggc2hvcGtlZXBlcidzIGVudGl0aWVzIGZvciBvbmUgcGxheWVyIChQRVIgU0hPUCkKbWF4LWVudGl0aWVzLWZvci1wbGF5ZXI6IDUKIyBQbGF5ZXIgdGhhdCBjYW4gYnlwYXNzIHRoaXMgbGltaXRhdGlvbgptYXgtZW50aXRpZXMtYnlwYXNzOgogIC0gWW91ck1pbmVjcmFmdFVzZXJuYW1lCgojIE1vZGVyYXRpb24gc2V0dGluZ3MgICAtIFRISVMgSVMgQSBDT05UQUlOIENPTkRJVElPTiBzbyBpZiB5b3Ugc2V0ICdwcm8nIGFsc28gbmFtZXMgbGlrZSAnYXByb24nLCAncHJvdG90eXB1cycsICdwcm90bycsICdwcm8nIGFuZCBpdCdzIGNhc2UgSU5TRU5TSVRJVkUKYmFubmVkLXNob3AtbmFtZXM6CiAgLSBoaXRsZXIKICAtIG5hemkKCiMgQmFubmVkIHNob3AgaXRlbSBuYW1lcyBzbyB0aGV5IGNhbid0IGJlIHNvbGQgb3IgYm91Z2h0CmJhbm5lZC1pdGVtLW5hbWVzOgogIC0gZGlhbW9uZF9heGUKCiMgQmFubmVkIGl0ZW0gSURzIApiYW5uZWQtaXRlbS1pZHM6CiAgLSAyNTUKCiMgVXRpbHMKZW5hYmxlLXJlbW90ZS10cmFkZTogZmFsc2UgICAjIEFsbG93IHBsYXllcnMgdG8gdHJhZGUgcmVtb3RlbHkgd2l0aCB0aGUgY29tbWFuZCAvc2sgdHJhZGUgPHNob3AgYXV0aG9yPiA8c2hvcCBuYW1lPgoKIyBDb2RlCiMgWWVhaCwgU2hvcGtlZXBlcnMgc3VwcG9ydCBZQU1MUG93ZXI6IHlvdSBjYW4gY3VzdG9taXplIHlvdXIgcGx1Z2luIQojIEFjdHVhbGx5IHRoZXNlIGV2ZW50cyBhcmUgc3VwcG9ydGVkOiBvblNob3BrZWVwZXJUcmFkZSwgb25TaG9wa2VlcGVyS2lsbCwgb25TaG9wa2VlcGVyU3VtbW9uLCBvblNob3BrZWVwZXJTdGFydHVwLCBvblNob3BrZWVySW50ZXJhY3Rpb24KIyBZQU1MUG93ZXIgcmVmZXJlbmNlOiBodHRwczovL2dpdGh1Yi5jb20vRm94V29ybjMzNjUvWUFNTFBvd2VyCgpvblNob3BrZWVwZXJUcmFkZToKICAtIGRlZmluZSBhID0gVFJBREUhCiAgLSBwcmludCBh";
 
+    // Some const like NOT_PERM_MSG and others...
     protected const NOT_PERM_MSG = "§cSorry but you don't have permissions to use this command!\nPlease contact your server administrator";
     public const AUTHOR = "FoxWorn3365";
-    public const VERSION = "1.0.0";
+    public const VERSION = "1.2.0";
 
     public function onLoad() : void {
         $this->menu = new \stdClass;
         $this->trades = new \stdClass;
         $this->tradeQueue = new \stdClass;
         $this->handle = new \stdClass;
+
+        // Now saving the VCode inside a global var to handle it later
+        $this->yamlHandler = new \stdClass;
+        $this->yaml = new Parser();
     }
 
     public function onEnable() : void {
@@ -112,9 +135,6 @@ class Core extends PluginBase implements Listener {
         // Check for file integrity
         Utils::integrityChecker($this->getDataFolder());
 
-        // Set server version
-        $this->server = (float)$this->getServer()->getApiVersion();
-
         // Register event listener
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
@@ -130,6 +150,23 @@ class Core extends PluginBase implements Listener {
         if (!$this->config->get('enabled', true)) {
             $this->getServer()->getPluginManager()->disablePlugin($this); // F
         }
+
+        // Load the code if present!
+        foreach (self::$allowedYamlHandlers as $handler) {
+            $this->yamlHandler->{$handler} = $this->config->get($handler, []);
+        }
+
+        // Now proceed with the global error handler
+        $logger = $this->getLogger();
+        $this->yaml->error->globalHandler(function (string $name, array $data = []) use ($logger) {
+            $logger->warning("[YAMLPower general error ANDOR exception]: {$name} - " . impode(' - ', $data));
+        });
+
+        // Execute the startup code if present
+        $this->yaml::parseArray(new \stdClass, $this->yamlHandler->onShopkeeperStartup, $this->yaml->error);
+
+        // Create the sheduler for pmmpStats
+        $this->getScheduler()->scheduleRepeatingTask(new pmmpStatsTask($this), 100*20);
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
@@ -170,6 +207,10 @@ class Core extends PluginBase implements Listener {
                 $entity = $event->getEntity();
                 $entity->setCustomShopkeeperEntityId(Utils::randomizer(10));
                 $this->entities->add($event->getEntity());
+
+                $var = new \stdClass;
+                $var->entity = $event->getEntity();
+                $this->yaml::parseArray($var, $this->yamlHandler->onShopkeeperSummon, $this->yaml->error);
             }
         }
     }
@@ -288,8 +329,7 @@ class Core extends PluginBase implements Listener {
             $shopdata->shop = $name;
             if (SkinUtils::find($name, $sender->getName(), $this->getDataFolder())) {
                 // Has a skin, let's summon an human entity after getting the skin
-                $skin = SkinUtils::get($name, $sender->getName(), $this->getDataFolder());
-                $villager = new HumanShopkeeper($pos, $skin, $shopdata);
+                $villager = new HumanShopkeeper($pos, SkinUtils::get($name, $sender->getName(), $this->getDataFolder()), $shopdata);
             } else {
                 // A simple Shopkeeper, so summon a villager-like entity
                 $villager = new Shopkeeper($pos, $shopdata);
@@ -301,6 +341,36 @@ class Core extends PluginBase implements Listener {
             return true;
         } elseif ($args[0] === "remove" || $args[0] === "despawn") {
             $sender->sendMessage("To remove a shopkeeper just hit it!");
+            return true;
+        } elseif ($args[0] === "trade") {
+            if (!$sender->hasPermission("shopkeepers.shop.summon") && $this->config->get('enable-remote-trade', false)) {
+                $sender->sendMessage(self::NOT_PERM_MSG);
+            } else {
+                if (!(!@empty($args[1]) && !@empty($args[2]))) {
+                    $sender->sendMessage("Sorry but you need to specify also the player name and the shop name!");
+                } else {
+                    $configmanager = new ConfigManager($args[1], $this->getDataFolder());
+                    $data = $configmanager->get();
+                    if (@$data->{$args[2]} !== null) {
+                        $configmanager->setSingleKey($args[2]);
+
+                        $catch = false;
+                        foreach ($sender->getWorld()->getEntities() as $entity) {
+                            if ($entity instanceof Shopkeeper or $entity instanceof HumanShopkeeper) {
+                                if ($entity->shopconfig->author == $args[1] && $entity->shopconfig->shop == $args[2] && !$catch)
+                                // We got the entity, let's create the trade interface
+                                var_dump($catch);
+                                $catch = true;
+                                $manager = new Manager($configmanager);
+                                $manager->send($sender, $entity);
+                            }
+                        }
+                        if (!$catch) { $sender->sendMessage("§6Sorry but there sn't any entity for Shop " . $args[2] . " in this world!"); }
+                    } else {
+                        $sender->sendMessage("§cSorry but the player '" . $args[1] . "' does not have any Shop called " . $args[2] . "!");
+                    }
+                }
+            }
             return true;
         } elseif ($args[0] === "history" && !empty($args[1])) {
             if (!$sender->hasPermission("shopkeepers.shop.history")) {
@@ -426,6 +496,12 @@ class Core extends PluginBase implements Listener {
                                                 }
                                                 */
                                                 $item->setCount($result->getCount());
+
+                                                $var = new \stdClass;
+                                                $var->player = $event->getOrigin()->getPlayer();
+                                                $var->item = $item;
+                                                $this->yaml::parseArray($var, $this->yamlHandler->onShopkeeperTrade, $this->yaml->error);
+
                                                 $log .= "§l{$item->getCount()}§r {$item->getName()} for ";
                                                 // Before set this we need to check and update the villager's inventory
                                                 $total = $result->getCount();
@@ -637,6 +713,11 @@ class Core extends PluginBase implements Listener {
                         $this->entities->remove($this->entities->generateEntityHash($event->getEntity()));
                         $this->entities->list->{$event->getEntity()->getConfig()->author}->{$event->getEntity()->getConfig()->shop}--;
                         $event->getEntity()->kill();
+
+                        $var = new \stdClass;
+                        $var->player = $event->getDamager();
+                        $var->entity = $event->getEntity();
+                        $this->yaml::parseArray($var, $this->yamlHandler->onShopkeeperKill, $this->yaml->error);
                     } elseif ($event->getEntity()->getConfig()->author === $event->getDamager()->getName() && $event->getDamager()->hasPermission("shopkeepers.shop.kill")) {
                         $this->entities->remove($this->entities->generateEntityHash($event->getEntity()));
                         $this->entities->list->{$event->getEntity()->getConfig()->author}->{$event->getEntity()->getConfig()->shop}--;
@@ -658,6 +739,12 @@ class Core extends PluginBase implements Listener {
         if (!$player->hasPermission("shopkeepers.shop.use")) {
             $player->sendMessage(self::NOT_PERM_MSG);
         }
+
+        $var = new \stdClass;
+        $var->player = $player;
+        $var->entity = $entity;
+        $this->yaml::parseArray($var, $this->yamlHandler->onShopkeeperInteraction, $this->yaml->error);
+
         if ($entity instanceof Shopkeeper || $entity instanceof HumanShopkeeper) {
             $data = $entity->getConfig();
             $cm = new ConfigManager($data->author, $this->getDataFolder());

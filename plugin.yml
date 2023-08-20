@@ -1,5 +1,5 @@
 name: Shopkeepers
-version: 1.0.0
+version: 1.2.0
 api: 5.0.0
 
 main: FoxWorn3365\Shopkeepers\Core
@@ -10,7 +10,7 @@ description: Add shopkeepers to your PocketMine server!
 commands:
   shopkeepers:
     description: The main shopkeepers command
-    usage: "/shopkeepers [list|create|summon|rename|edit|info|history] <NAME>"
+    usage: "/shopkeepers [list|create|summon|rename|edit|info|history|trade] [<NAME>] [...]"
     aliases:
       - sk
       - shopk
@@ -64,3 +64,6 @@ permissions:
   shopkeepers.shop.allowRemoteInventoryOpen:
     description: "Allow users to open a shopkeeper's inventory with the command /sk inventory"
     default: op
+  shopkeepers.shop.allowRemoteTrade:
+    description: "Allow users to remotely trade with a shopkeeper with the command /sk trade <author> <shop>"
+    default: true
