@@ -8,6 +8,7 @@ final class _Define {
     public static function execute(object $var, array $args, Error $error) : object { // Return value is the var value
         $string = implode(' ', $args);
         $varName = null;
+        $varValue = null;
         // SCHEMA: define a = 1, var a = 1 (CALL FROM OTHER)
         if ($args[0] === 'define' || $args[0] === 'var') {
             $varName = $args[1];
