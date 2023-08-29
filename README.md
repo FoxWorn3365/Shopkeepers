@@ -25,7 +25,7 @@
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
-<br><br>
+<br>
 
 **⚠️ This plugin collect some data for [pmmpStats](https://pmmpstats.xyz). Read more (and how to disable) [here](#🔸-pmmpstats-implementation)**!
 
