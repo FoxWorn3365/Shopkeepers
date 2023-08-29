@@ -11,7 +11,7 @@ final class _Print {
                 $error->throw('notAllArgsException', true);
             } else {
                 if (gettype($var->{$args[1]}) === 'string') {
-                    echo $var->{$args[1]};
+                    //echo $var->{$args[1]};
                 } else {
                     $error->throw('wrongTypeException', true);
                 }
