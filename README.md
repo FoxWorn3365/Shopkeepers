@@ -16,7 +16,7 @@
 </p>
 
 ---
-<h1 align="center"><b>Shopkeepers v1.2</b> for PocketMine-MP <b>5</b></h1>
+<h1 align="center"><b>Shopkeepers v1.3</b> for PocketMine-MP <b>5</b></h1>
 
 <br>
 <img src='https://pmmpstats.xyz/api/v1/static/playersServers?name=Shopkeepers' style='width: 100%'>
@@ -25,12 +25,16 @@
 
 **⚠️ We are not in any way related to the [Shopkeepers plugin](https://dev.bukkit.org/projects/shopkeepers) for Bukkit!**
 
+<br><br>
+
+**⚠️ This plugin collect some data for [pmmpStats](https://pmmpstats.xyz). Read more (and how to disable) [here](#🔸-pmmpstats-implementation)**!
+
 > Follow me on [**Twitter**](https://twitter.com/FoxWorn3365) to remain updated!
 
 ## Introduction video
 <a href='https://youtu.be/FIAcOnTyW_Y'>Watch the video on YouTube</a>
 
-## Features
+## 📰 Features
 - Players can create their own Shopkeepers and manage it
 - Admin Shopkeepers
 - Vanilla trade page
@@ -39,6 +43,7 @@
 - Easy configuration with in-game GUI
 - Double trade supported
 - Custom skin support
+- Plugin APIs
 
 <p align="center">
   <br>
@@ -47,11 +52,11 @@
   <br>
 </p>
 
-## Compatibility
+## 🖥️ Compatibility
 > **Warning**
 > As of **v1.2** we no longer support PocketMine-MP 4, this however does not mean that we will remove **v1.0** for PMMP4, in fact it will always remain available here on GitHub at [__this branch__](https://github.com/FoxWorn3365/Shopkeepers/tree/pmmp4)!
 
-## Configuration
+## 🛠️ Configuration
 The configuration of **Shopkeepers** allows you to customize some values to make it suitable for all servers.
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -62,8 +67,10 @@ The configuration of **Shopkeepers** allows you to customize some values to make
 | banned-item-names | array | [] | List of banned items (can't be sold) |
 | banned-item-ids | array | [] | List of banned item ids (can't be sold) |
 | enable-remote-trade[🛈](#remote-trade) | bool | false | Allow player to use the /sk trade command |
+| enable-pmmpstats-datashare | bool | true | Allow the server to share [some data](#🔸-pmmpstats-implementation) with [pmmpStats](https://pmmpstats.xyz) |
+| enable-version-checker | bool | true | Allow the server to check the plugin version |
 
-## Commands
+## ⌨️ Commands
 The base command is `/shopkeepers` but you can also use `/sk`, `/skeepers` and `/shopk` as aliases.
 Here a list of all commands that you can use:
 | Command | Args | Description |
@@ -77,6 +84,20 @@ Here a list of all commands that you can use:
 | list | none | Show all of your shops |
 | history | SHOP NAME and PAGE | Show the trade history for the shopkeeper |
 | trade | SHOP AUTHOR NAME and SHOP NAME | Remotely trade with a shopkeeper |
+
+## 🔸 pmmpStats implementation
+This plugin makes use of [pmmpStats](https://pmmpstats.xyz) to create and process plugin statistics, which then includes a continuous sending of the following information to the service servers:
+- Server IP and port
+- Server OS version
+- Server PHP version
+- Server cores
+- Server PocketMine-MP version
+- Server version (minecraft)
+- Online players
+- Server Xbox auth status
+
+The Terms of Service of pmmpStats are available [here](https://pmmpstats.xyz/tos), instead the privacy polici is at [this link](https://pmmpstats.xyz/privacy).<br>
+You **can** disable information sharing with pmmpStats by setting the `enable-pmmpstats-datashare` value to `false`, by default (so even if the value is not present) it is enabled.
 
 ## Shopkeepers Skin System (SSS)
 Yes, the v1.0 brought an epic function: now you can set a skin of a Shopkeeper.<br>
@@ -96,6 +117,37 @@ You should have seen something new in the `Shopkeepers` folder, the `skins` fold
 The file name should be composed as follows: `<PLAYER NAME>_<SHOP NAME>.png`, for example `FoxWorn3365_Fox.png` is valid and will be used by the plugin.
 ### I don't want to select skins
 Well, if no skin is provided the classic villager is spawned. yeee
+
+## API Documentation
+Shopkeepers from the **v1.3** implements the APIs.
+```php
+$api = FoxWorn3365\Shopkeepers\Core::$api;
+```
+
+### Get the config manager of a player
+```php
+$api->getConfigManager(Player $player) : FoxWorn3365\Shopkeepers\ConfigManager
+```
+
+### Get the Shopkeeper config of a player
+```php
+$api->getConfig(Player $player, string $shopName) : object|array|bool
+```
+
+### Open the trade page to a player from the shopkeeper author and name
+```php
+$api->openTradeInventoryForPlayer(Player $player, string $shopOwner, string $shopName) : void
+```
+
+### Update a Shopkeeper config
+```php
+$api->setConfig(Player $player, string $shopName, object $config) : void
+```
+
+### Summon a Shopkeeper
+```php
+$api->summonShopkeeper(Player $player, string $shopName) : void
+```
 
 ## F.A.Q.
 ### How to create an Admin shop

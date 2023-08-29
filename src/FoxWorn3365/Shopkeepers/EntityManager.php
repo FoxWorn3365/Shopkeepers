@@ -105,6 +105,9 @@ class EntityManager {
         foreach ($this->elements as $shop) {
             if ($shop !== null) {
                 $entity = self::createEntity($shop, $player->getServer());
+                if ($entity === null) {
+                    continue;
+                }
                 if (@$this->list->{$entity->getConfig()->author} === null) {
                     $this->list->{$entity->getConfig()->author} = new \stdClass;
                     $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
@@ -120,14 +123,18 @@ class EntityManager {
         }
     }
 
-    protected static function createEntity(string $rawdata, Server $server) : Shopkeeper|HumanShopkeeper {
+    protected static function createEntity(string $rawdata, Server $server) : Shopkeeper|HumanShopkeeper|null {
         $data = (object)json_decode(base64_decode($rawdata));
         $location = new Location($data->x, $data->y, $data->z, $server->getWorldManager()->getWorld($data->world), $data->yaw, $data->pitch);
-        if (SkinUtils::find(json_decode(base64_decode($data->config))->shop, json_decode(base64_decode($data->config))->author, $server->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder())) {
-            $skin = SkinUtils::load(json_decode(base64_decode($data->config))->shop, json_decode(base64_decode($data->config))->author, $server->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder());
-            $entity = new HumanShopkeeper($location, $skin, json_decode(base64_decode($data->config)), $data->id);
+        if ($location->isValid() && @$location->getWorld() !== null) {
+            if (SkinUtils::find(json_decode(base64_decode($data->config))->shop, json_decode(base64_decode($data->config))->author, $server->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder())) {
+                $skin = SkinUtils::load(json_decode(base64_decode($data->config))->shop, json_decode(base64_decode($data->config))->author, $server->getPluginManager()->getPlugin("Shopkeepers")->getDataFolder());
+                $entity = new HumanShopkeeper($location, $skin, json_decode(base64_decode($data->config)), $data->id);
+            } else {
+                $entity = new Shopkeeper($location, json_decode(base64_decode($data->config)), $data->id);
+            }
         } else {
-            $entity = new Shopkeeper($location, json_decode(base64_decode($data->config)), $data->id);
+            return null;
         }
         $tags = json_decode(base64_decode($data->nametag));
         $entity->setNameTag($tags->tag);

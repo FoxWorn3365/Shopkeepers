@@ -26,7 +26,7 @@ use FoxWorn3365\Shopkeepers\Core;
 use FoxWorn3365\Shopkeepers\ConfigManager;
 use FoxWorn3365\Shopkeepers\EntityManager;
 
-class ShopkeepersAPI {
+final class ShopkeepersAPI {
     protected Core $plugin;
     protected EntityManager $entity;
 

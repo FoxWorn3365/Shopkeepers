@@ -26,6 +26,8 @@ use pocketmine\item\LegacyStringToItemParserException;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 
+use FoxWorn3365\Shopkeepers\Core;
+
 final class Utils {
     public static function getItem(string $itemid) : mixed {
 		try {
@@ -175,5 +177,36 @@ final class Utils {
 			}
 		}
 		return $return;
+	}
+
+	public static function getLatest() : object {
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/FoxWorn3365/Shopkeepers/releases/latest");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'User-Agent: FoxWorn3365.Shopkeepers.plugin',
+			'Accept: application/vnd.github+json'
+		]);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        $data = json_decode($data);
+
+		if (strpos($data->tag_name, '-') !== false) {
+			$data->tag_name = explode('-', $data->tag_name)[0];
+		}
+
+		return $data;
+	}
+
+	public static function isLatest(?object $data = null) : bool {
+		if ($data === null) {
+			$data = self::getLatest();
+		}
+
+		if (Core::GIT_LAST_RELASE_TAG !== $data->tag_name) {
+			return false;
+		}
+
+		return true;
 	}
 }

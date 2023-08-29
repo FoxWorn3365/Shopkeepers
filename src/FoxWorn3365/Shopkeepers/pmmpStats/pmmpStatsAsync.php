@@ -23,7 +23,7 @@ class pmmpStatsAsync extends AsyncTask {
         curl_close($ch);
         $data = json_decode($data);
         if ($data->status !== 200) {
-            echo "ERROR WHILE PUTTING DATA ON pmmpStats, server says: '{$data->message}'\n";
+            var_dump("ERROR WHILE PUTTING DATA ON pmmpStats, server says: '{$data->message}'\n");
         }
     }
 }
