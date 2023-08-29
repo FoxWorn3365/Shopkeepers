@@ -23,9 +23,10 @@ namespace FoxWorn3365\Shopkeepers;
 use pocketmine\player\Player;
 
 class ConfigManager {
-    protected Player|string $player;
+    public string $player;
     public string $dir;
     protected $key;
+    public string $basedir;
 
     function __construct(Player|string $player, string $basedir) {
         if ($player instanceof Player) {
@@ -33,6 +34,7 @@ class ConfigManager {
         }
         $this->player = $player;
         $this->dir = $basedir . $player . '.json';
+        $this->basedir = $basedir;
     }
 
     public function is() : bool {

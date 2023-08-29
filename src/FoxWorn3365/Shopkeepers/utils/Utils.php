@@ -161,6 +161,15 @@ final class Utils {
 		}
 	}
 
+	public static function fixArray(object $oldArray) : array {
+		$data = [];
+		foreach ($oldArray as $_k => $value) {
+			$data[] = $value;
+		}
+
+		return $data;
+	}
+
 	public static function randomizer(int $lenght) : int {
 		$buffer = "";
 		for ($a = 0; $a < $lenght; $a++) {

@@ -24,6 +24,7 @@ use pocketmine\entity\Location;
 use pocketmine\Server;
 
 use FoxWorn3365\Shopkeepers\utils\SkinUtils;
+use FoxWorn3365\Shopkeepers\utils\Utils;
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
 use FoxWorn3365\Shopkeepers\entity\HumanShopkeeper;
 
@@ -32,6 +33,7 @@ class EntityManager {
     protected array $elements = [];
     public array $entities = [];
     public object $list;
+    public bool $loaded = false;
 
     function __construct(string $base) {
         $this->base = $base;
@@ -102,24 +104,28 @@ class EntityManager {
         }
 
         $server = $player->getServer();
-        foreach ($this->elements as $shop) {
-            if ($shop !== null) {
-                $entity = self::createEntity($shop, $player->getServer());
-                if ($entity === null) {
-                    continue;
-                }
-                if (@$this->list->{$entity->getConfig()->author} === null) {
-                    $this->list->{$entity->getConfig()->author} = new \stdClass;
-                    $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
-                } else {
-                    if (@$this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} !== null) {
-                        $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop}++;
-                    } else {
-                        $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
+
+        if (!$this->loaded) {
+            foreach ($this->elements as $shop) {
+                if ($shop !== null) {
+                    $entity = self::createEntity($shop, $player->getServer());
+                    if ($entity === null) {
+                        continue;
                     }
+                    if (@$this->list->{$entity->getConfig()->author} === null) {
+                        $this->list->{$entity->getConfig()->author} = new \stdClass;
+                        $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
+                    } else {
+                        if (@$this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} !== null) {
+                            $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop}++;
+                        } else {
+                            $this->list->{$entity->getConfig()->author}->{$entity->getConfig()->shop} = 1;
+                        }
+                    }
+                    $entity->spawnTo($player);
                 }
-                $entity->spawnTo($player);
             }
+            $this->loaded = true;
         }
     }
 
@@ -147,5 +153,24 @@ class EntityManager {
         foreach ($this->elements as $data) {
             $this->entities[] = self::createEntity($data, $server);
         }
+    }
+
+    public static function getCountFromConfig(string $basedir, string $shopauthor, string $name) : int {
+        $data = @json_decode(file_get_contents("{$basedir}.entities.json"));
+        if (gettype($data) === 'object') {
+            $data = Utils::fixArray($data);
+        }
+
+        $count = 0;
+
+        foreach ($data as $entity) {
+            $entity = (object)json_decode(base64_decode($entity));
+
+            if (json_decode(base64_decode($entity->config))->author === $shopauthor && json_decode(base64_decode($entity->config))->shop === $name) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 }

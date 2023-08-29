@@ -30,6 +30,7 @@ use FoxWorn3365\Shopkeepers\utils\Draw;
 use FoxWorn3365\Shopkeepers\utils\Factory;
 use FoxWorn3365\Shopkeepers\utils\NbtManager;
 use FoxWorn3365\Shopkeepers\ConfigManager;
+use FoxWorn3365\Shopkeepers\EntityManager;
 use FoxWorn3365\Shopkeepers\utils\SkinUtils;
 
 use FoxWorn3365\Shopkeepers\entity\Shopkeeper;
@@ -89,6 +90,10 @@ class ShopInfoMenu {
 
         // Delete options
         $inventory->setItem(16, Factory::item(35, 14, "§c§lDelete\n\n§r§oThis Shopkeeper will be deleted §cFOREVER§r§o!"));
+
+        // Slot 8: count
+        $entitiesCount = EntityManager::getCountFromConfig($this->cm->basedir, $this->cm->player, $this->cm->getSingleKey());
+        $inventory->setItem(8, Factory::stringItem("minecraft:comparator", "§8§lEntities\n\n§r§l{$entitiesCount} §rentities summoned."));
 
         $cm = $this->cm;
         $config = $this->config;
